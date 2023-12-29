@@ -1,0 +1,16 @@
+@startuml Twamp
+
+group Control-Connection
+"Control-Client" --> Server: Start TCP Connection
+Server -> "Control-Client": Greetings Message
+
+"Control-Client" -> Server: { Mode, Integrity/Security? }
+Server -> "Control-Client": Accept Mode + **start_time**
+end
+
+"Control-Client" -> Server: Test Session + TWAMP-Control Message
+"Control-Client" <- Server: Ok + info
+
+
+
+@enduml
