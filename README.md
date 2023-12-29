@@ -28,7 +28,9 @@ Simple Logic Diagram:
 
 Overview:
 
- 
+<div style="text-align: center;">
+    <img src="./resources/Twamp_overall_CLIENT_SERVER.png">
+</div>
 
 
 # References
