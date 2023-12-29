@@ -8,9 +8,14 @@ Server -> "Control-Client": Greetings Message
 Server -> "Control-Client": Accept Mode + **start_time**
 end
 
-"Control-Client" -> Server: Test Session + TWAMP-Control Message
+"Control-Client" -> Server: Create Test Session + TWAMP-Control Message
 "Control-Client" <- Server: Ok + info
 
+"Control-Client" -> Server: Start-Sessions
+"Control-Client" <- Server: Ok
 
+... After (or not) Session-Sender and Session-Reflector\nexchanges test packets ...
+
+"Control-Client" -> Server: Stop All
 
 @enduml
