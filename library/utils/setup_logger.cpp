@@ -2,7 +2,7 @@
 // Created by beloin on 28/12/23.
 //
 
-#include "setup_logger.h"
+#include "utils/setup_logger.h"
 #include "spdlog/spdlog.h"
 
 using namespace Setup;

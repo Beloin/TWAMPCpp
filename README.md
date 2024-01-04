@@ -14,7 +14,7 @@ Simple Logic Diagram:
    |                                     |
    |                                     |
    |  +----------------+<----------------+
-   |  |     Server     |
+   |  |     Utils     |
    |  +----------------+
    |    ^
    |    |
@@ -35,7 +35,7 @@ Overview:
 # Modus Operadis
 
 Following [Chapter 5][5] from [__RFC 5357__][1] will be the Controller(Client) and
-the Responder(Server), which will implement Session-Sender and Session Reflector respectively.
+the Responder(Utils), which will implement Session-Sender and Session Reflector respectively.
 
 - [ ] TWAMP-Control:
     - [ ] Connection Setup
@@ -53,6 +53,10 @@ the Responder(Server), which will implement Session-Sender and Session Reflector
         - [ ] Packet Format and Content
     - Reflector Behaviour
         - [ ] TWAMP-Test Packet Format and Content
+
+# Dependecies
+
+1. [spdlog](https://github.com/gabime/spdlog)
 
 # References
 
