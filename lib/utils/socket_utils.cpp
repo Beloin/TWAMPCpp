@@ -5,7 +5,7 @@
 #include "utils/socket_utils.h"
 #include <cstdio>
 
-size_t Utils::rbytes(int socketfd, const unsigned char *buf, size_t n) {
+size_t Utils::rbytes(int socketfd, unsigned char *buf, size_t n) {
     size_t bytes, missing_bytes, total = 0;
     while (total != n) { // Read all bytes into buf
         missing_bytes = n - total;
@@ -25,7 +25,7 @@ size_t Utils::rbytes(int socketfd, const unsigned char *buf, size_t n) {
 }
 
 
-size_t Utils::sbytes(int socketfd, const unsigned char *buf, size_t n) {
+size_t Utils::sbytes(int socketfd, unsigned char *buf, size_t n) {
     size_t bytes, missing_bytes, total = 0;
     while (total != n) {
         missing_bytes = n - total;

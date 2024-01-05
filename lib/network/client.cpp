@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <iostream>
 
 #include "spdlog/spdlog.h"
 
@@ -68,5 +69,15 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
     spdlog::info("serve: got connection from {} with fd {}", s, server_fd);
     freeaddrinfo(servinfo);
 
+    has_connected = true;
+
     return 0;
+}
+
+void Network::Client::Ping() {
+    unsigned char buffer[100];
+    Utils::rbytes(server_fd, buffer, 12);
+
+    std::cout << "Client Received: " << buffer << "\n";
+    close(server_fd);
 }

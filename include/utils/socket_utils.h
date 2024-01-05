@@ -11,9 +11,9 @@
 
 
 namespace Utils {
-    size_t rbytes(int socketfd, const unsigned char *buf, size_t n);
+    size_t rbytes(int socketfd, unsigned char *buf, size_t n);
 
-    size_t sbytes(int socketfd, const unsigned char *buf, size_t n);
+    size_t sbytes(int socketfd, unsigned char *buf, size_t n);
 
     void *get_in_addr(struct sockaddr *sa);
 }

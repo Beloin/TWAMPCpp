@@ -12,7 +12,7 @@ namespace Network {
     public:
         explicit Server();
 
-        int Serve(char *port);
+        int Serve(const std::string &port);
 
         ~Server();
 

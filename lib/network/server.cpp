@@ -21,7 +21,7 @@ using Network::Server;
 
 void handle_socket(int new_fd);
 
-int Server::Serve(char *port) {
+int Server::Serve(const std::string &port) {
     int server_fd;
     struct addrinfo hints{}, *servinfo, *p;
 
@@ -34,7 +34,7 @@ int Server::Serve(char *port) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    if ((rv = getaddrinfo(nullptr, port, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(nullptr, port.data(), &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
     }
 
@@ -72,7 +72,7 @@ int Server::Serve(char *port) {
         exit(1);
     }
 
-    spdlog::info("serve ({}): waiting for connections...\n", port);
+    spdlog::info("serve ({}): waiting for connections...", port);
 
     server_on = true;
     serverfd = server_fd;
@@ -115,9 +115,9 @@ bool Network::Server::IsRunning() const {
 
 
 void handle_socket(int new_fd) {
-    const char *buf = "Hello World";
-    size_t bytes_sent = Utils::sbytes(new_fd, reinterpret_cast<const unsigned char *>(buf), 11);
-    if (bytes_sent != 11) {
+    unsigned char *buf = (unsigned char *) "Hello World";
+    size_t bytes_sent = Utils::sbytes(new_fd, buf, 12);
+    if (bytes_sent != 12) {
         if (bytes_sent == -1) {
             spdlog::info("could not send this message to client (fd:{})", new_fd);
         } else {

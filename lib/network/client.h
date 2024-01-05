@@ -11,12 +11,14 @@ namespace Network {
     class Client {
 
     private:
+        bool has_connected = false;
         int server_fd{};
 
         int UpdaterServerFd(std::string const &host, std::string const &port);
 
     public:
         int ConnectTo(std::string const &host, std::string const &port);
+        void Ping();
 
     };
 
