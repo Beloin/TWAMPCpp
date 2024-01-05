@@ -10,10 +10,8 @@
 
 [[noreturn]] int main(int arv, char **argc) {
     Network::Server server{};
-
     Setup::setup_logger(Setup::logger_info_tag{}); // Tags used merely as example
 
-    std::cout << "Hello World" << std::endl;
     while (true) {
         server.Serve("8862"); // Should be 862
     }
