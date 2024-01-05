@@ -3,6 +3,7 @@ add_library(
         utils/socket_utils.cpp
         ./utils/setup_logger.cpp
         ./network/server.cpp
+        ./network/client.cpp
 )
 
 target_include_directories(lib_impl PRIVATE ../include)

@@ -7,7 +7,7 @@ sock.connect(('127.0.0.1', 8862))
 # sock.send('Test\n')
 # sock.send(raw_input("Please input : "))
 
-s = sock.recv(12)
+s = sock.recv(11)
 
 print(s)
 sock.close()

@@ -9,7 +9,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <pthread.h>
 
 #include "spdlog/spdlog.h"
 
@@ -24,7 +23,7 @@ void handle_socket(int new_fd);
 
 int Server::Serve(char *port) {
     int server_fd;
-    struct addrinfo hints, *servinfo, *p;
+    struct addrinfo hints{}, *servinfo, *p;
 
     int yes = 1;
     char s[INET6_ADDRSTRLEN];
@@ -35,13 +34,12 @@ int Server::Serve(char *port) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    char *name = "0.0.0.0"; // Could be localhost too. But since we are using AI_PASSIVE, the host is the same machine as this
-    if ((rv = getaddrinfo(NULL, port, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(nullptr, port, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
     }
 
 
-    for (p = servinfo; p != NULL; p = p->ai_next) {
+    for (p = servinfo; p != nullptr; p = p->ai_next) {
         // This get socket information
         if ((server_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             perror("serve: socket");
@@ -64,9 +62,8 @@ int Server::Serve(char *port) {
     }
 
     freeaddrinfo(servinfo);
-    if (p == NULL) {
+    if (p == nullptr) {
         spdlog::error("serve: failed to bind");
-//        fprintf(stderr, "serve: failed to bind");
         exit(1);
     }
 
@@ -81,7 +78,7 @@ int Server::Serve(char *port) {
     serverfd = server_fd;
 
     while (should_run) {
-        struct sockaddr_storage their_addr;
+        struct sockaddr_storage their_addr{};
         socklen_t sin_size = sizeof their_addr;
 
         // Accept is a cancellation point, so we should be able to kill the serve thread here
@@ -93,7 +90,7 @@ int Server::Serve(char *port) {
         }
 
         inet_ntop(their_addr.ss_family, Utils::get_in_addr((struct sockaddr *) &their_addr), s, sizeof s);
-        spdlog::info("serve: got connection from {} with fd {}\n", s, new_fd);
+        spdlog::info("serve: got connection from {} with fd {}", s, new_fd);
 
         handle_socket(new_fd);
     }
@@ -119,12 +116,12 @@ bool Network::Server::IsRunning() const {
 
 void handle_socket(int new_fd) {
     const char *buf = "Hello World";
-    size_t bytes_sent = Utils::sbytes(new_fd, reinterpret_cast<const unsigned char *>(buf), 12);
-    if (bytes_sent != 12) {
+    size_t bytes_sent = Utils::sbytes(new_fd, reinterpret_cast<const unsigned char *>(buf), 11);
+    if (bytes_sent != 11) {
         if (bytes_sent == -1) {
-            printf("could not send this message to client (fd:%d)\n", new_fd);
+            spdlog::info("could not send this message to client (fd:{})", new_fd);
         } else {
-            printf("client (fd:%d) disconnected\n", new_fd);
+            spdlog::info("client (fd:{}) disconnected", new_fd);
         }
         // Normally errors like this are some kind of connection end like: EINTR
     }
