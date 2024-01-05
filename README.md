@@ -57,6 +57,8 @@ the Responder(Utils), which will implement Session-Sender and Session Reflector 
 # Dependecies
 
 1. [spdlog](https://github.com/gabime/spdlog)
+   1. `pacman -S spdlog`
+   2. `sudo apt install libspdlog-dev`
 
 # References
 
