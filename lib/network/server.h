@@ -5,6 +5,9 @@
 #ifndef TWAMP_SERVER_H
 #define TWAMP_SERVER_H
 
+#define SERVWAIT 900
+#define REFWAIT 900
+
 namespace Network {
 
     class Server {

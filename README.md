@@ -34,12 +34,12 @@ Overview:
 
 # Modus Operadis
 
-Following [Chapter 5][5] from [__RFC 5357__][1] will be the Controller(Client) and
-the Responder(Utils), which will implement Session-Sender and Session Reflector respectively.
+Following [Chapter 5][5] (two-host implementation) from [__RFC 5357__][1] will be the Controller(Client) and
+the Responder(Server), which will implement Session-Sender and Session Reflector respectively.
 
 - [ ] TWAMP-Control:
     - [ ] Connection Setup
-    - [ ] Integrity Protection
+    - [ ] Integrity Protection (Probably will not be implemented) (Implement later with shared-secrets)
     - [ ] Connection Setup
     - [ ] TWAMP-Control Commands
     - [ ] Create Test Sessions
@@ -54,7 +54,41 @@ the Responder(Utils), which will implement Session-Sender and Session Reflector 
     - Reflector Behaviour
         - [ ] TWAMP-Test Packet Format and Content
 
-# Dependecies
+## Connection Setup:
+
+Same as [OWAMP][6], network byte order.
+
+Packet:
+
+``` 
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                      Unused (12 octets)                       |
+|                                                               |
+|+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                            Modes                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                     Challenge (16 octets)                     |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                        Salt (16 octets)                       |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                        Count (4 octets)                       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                        MBZ (12 octets)                        |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+# Dependencies
 
 1. [spdlog](https://github.com/gabime/spdlog)
    1. `pacman -S spdlog`
@@ -69,6 +103,9 @@ the Responder(Utils), which will implement Session-Sender and Session Reflector 
 [3]:https://beej.us/guide/bgnet/
 
 [5]:https://datatracker.ietf.org/doc/html/rfc5357#section-5
+
+[6]:https://datatracker.ietf.org/doc/html/rfc4656#section-3.1
+
 
 1. [RFC 5357][1]
 2. [Understand Two-Way Active Measurement Protocol][2]

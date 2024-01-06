@@ -12,8 +12,11 @@
 
 void client_main();
 
+// TODO: We will ignore DSCP?
+
+
 [[noreturn]] int main(int arv, char **argc) {
-    Network::Server server;
+    Network::Server server; // The Server and Session-Reflector
     Setup::setup_logger(Setup::logger_info_tag{}); // Tags used merely as example
 
     while (true) {
@@ -23,7 +26,7 @@ void client_main();
 }
 
 void client_main() {
-    Network::Client client{};
+    Network::Client client{}; // The Control-Client and Session-Sender
 
     client.ConnectTo("127.0.0.1", PORT);
     client.Ping();

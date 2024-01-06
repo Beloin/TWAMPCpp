@@ -4,6 +4,7 @@ add_library(
         ./utils/setup_logger.cpp
         ./network/server.cpp
         ./network/client.cpp
+        ./network/messages.cpp
 )
 
 target_include_directories(lib_impl PRIVATE ../include)

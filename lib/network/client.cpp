@@ -20,8 +20,7 @@ using Network::Client;
 
 
 int Client::ConnectTo(const std::string &host, const std::string &port) {
-    auto status = UpdaterServerFd(host, port.data());
-
+    auto status = UpdaterServerFd(host, port);
     // TODO: Maybe here we can throw?
     return status;
 }
