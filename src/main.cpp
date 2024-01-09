@@ -20,7 +20,7 @@ void client_main();
     Setup::setup_logger(Setup::logger_info_tag{}); // Tags used merely as example
 
     while (true) {
-        server.Serve(PORT);
+        server.Serve(PORT); // TODO: Implement server greetings
     }
 //    client_main();
 }

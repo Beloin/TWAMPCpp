@@ -23,6 +23,9 @@ namespace Network {
         char client_iv[16];
     };
 
+    int SerializeServerGreetings(const ServerGreetings &greetings, unsigned char *buf);
+
+    void DeserializeServerGreetings(const ServerGreetings &greetings, unsigned char *buf);
 }
 
 #endif //TWAMP_MESSAGES_H

@@ -14,6 +14,7 @@
 
 #include "server.h"
 #include "utils/socket_utils.h"
+#include "messages.h"
 
 #define BACKLOG 10
 
@@ -114,10 +115,23 @@ bool Network::Server::IsRunning() const {
 }
 
 
+using namespace Network;
+
 void handle_socket(int new_fd) {
-    unsigned char *buf = (unsigned char *) "Hello World";
-    size_t bytes_sent = Utils::sbytes(new_fd, buf, 12);
-    if (bytes_sent != 12) {
+    size_t size;
+    auto *buf = (unsigned char *) "Hello World";
+    Network::ServerGreetings server_greetings{};
+
+    size = sizeof(server_greetings);
+    std::memset(&server_greetings, 0, size);
+    server_greetings.modes[3] = 1;
+
+    auto *buff = new unsigned char[64]; // unsigned char buffer[64];
+    int bytes_written = Network::SerializeServerGreetings(server_greetings, buff);
+
+    size_t bytes_sent = Utils::sbytes(new_fd, buff, bytes_written);
+//    size_t bytes_sent = Utils::sbytes(new_fd, buf, 12);
+    if (bytes_sent != bytes_written) {
         if (bytes_sent == -1) {
             spdlog::info("could not send this message to client (fd:{})", new_fd);
         } else {
@@ -127,4 +141,6 @@ void handle_socket(int new_fd) {
     }
 
     close(new_fd);
+
+    delete[] buff;
 }

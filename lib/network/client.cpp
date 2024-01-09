@@ -75,7 +75,7 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
 void Network::Client::Ping() {
     unsigned char buffer[100];
-    Utils::rbytes(server_fd, buffer, 12);
+    Utils::rbytes(server_fd, buffer, 64);
 
     std::cout << "Client Received: " << buffer << "\n";
     close(server_fd);
