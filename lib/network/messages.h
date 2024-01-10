@@ -30,8 +30,10 @@ namespace Network {
     };
 
     int SerializeServerGreetings(const ServerGreetings &greetings, unsigned char *buf);
-
     int DeserializeServerGreetings(ServerGreetings &greetings, const unsigned char *buf);
+
+    int SerializeClientGreetings(const ServerGreetings &greetings, unsigned char *buf);
+    int DeserializeClientGreetings(ServerGreetings &greetings, const unsigned char *buf);
 }
 
 #endif //TWAMP_MESSAGES_H
