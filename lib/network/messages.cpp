@@ -50,8 +50,41 @@ int Network::SerializeServerGreetings(const ServerGreetings &greetings, unsigned
     return current_pt;
 }
 
-void Network::DeserializeServerGreetings(const Network::ServerGreetings &greetings, unsigned char *buf) {
+int Network::DeserializeServerGreetings(Network::ServerGreetings &greetings, const unsigned char *buf) {
+    // ntohs(); // Not necessary since we are using only chars
 
+    int last_index = 0;
+    for (int i = 0; i < 12; ++i) {
+        greetings._unused[i] = buf[last_index];
+        last_index++;
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        greetings.modes[i] = buf[last_index];
+        last_index++;
+    }
+
+    for (int i = 0; i < 16; ++i) {
+        greetings.challenge[i] = buf[last_index];
+        last_index++;
+    }
+
+    for (int i = 0; i < 16; ++i) {
+        greetings.salt[i] = buf[last_index];
+        last_index++;
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        greetings.count[i] = buf[last_index];
+        last_index++;
+    }
+
+    for (int i = 0; i < 12; ++i) {
+        greetings.mbz[i] = buf[last_index];
+        last_index++;
+    }
+
+    return last_index;
 }
 
 

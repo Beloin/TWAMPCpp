@@ -15,6 +15,7 @@
 
 #include "utils/socket_utils.h"
 #include "client.h"
+#include "messages.h"
 
 using Network::Client;
 
@@ -59,13 +60,11 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
     if (p == nullptr) {
         spdlog::error("client: failed to connect");
-//        fprintf(stderr, "client: failed to connect\n"); // Printing directly to stderr
         return 3;
     }
 
     inet_ntop(p->ai_family, Utils::get_in_addr((struct sockaddr *) p->ai_addr), s, sizeof s);
-    printf("client: connecting to %s\n", s);
-    spdlog::info("serve: got connection from {} with fd {}", s, server_fd);
+    spdlog::info("client: connecting to {} with fd {}", s, server_fd);
     freeaddrinfo(servinfo);
 
     has_connected = true;
@@ -75,8 +74,15 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
 void Network::Client::Ping() {
     unsigned char buffer[100];
-    Utils::rbytes(server_fd, buffer, 64);
 
-    std::cout << "Client Received: " << buffer << "\n";
+    if (!has_connected); // TODO: Create a validation here
+    Utils::rbytes(server_fd, buffer, 64);
+    ServerGreetings serverGreetings{};
+
+    // TODO: Using it for test
+    std::memset(&serverGreetings, 1, sizeof(serverGreetings));
+
+    Network::DeserializeServerGreetings(serverGreetings, buffer);
+
     close(server_fd);
 }

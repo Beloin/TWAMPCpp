@@ -8,6 +8,8 @@
 #include "network/server.h"
 #include "network/client.h"
 
+#include <string>
+
 #define PORT "8862" // Should be 862
 
 void client_main();
@@ -15,14 +17,19 @@ void client_main();
 // TODO: We will ignore DSCP?
 
 
-[[noreturn]] int main(int arv, char **argc) {
+[[noreturn]] int main(int argv, char **argc) {
     Network::Server server; // The Server and Session-Reflector
     Setup::setup_logger(Setup::logger_info_tag{}); // Tags used merely as example
 
-    while (true) {
-        server.Serve(PORT); // TODO: Implement server greetings
+    if (std::strcmp(argc[1], "server") == 0) {
+        while (true) {
+            server.Serve(PORT); // TODO: Implement server greetings
+        }
+    } else {
+        client_main();
+        exit(0);
     }
-//    client_main();
+
 }
 
 void client_main() {

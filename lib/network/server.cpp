@@ -20,7 +20,7 @@
 
 using Network::Server;
 
-void handle_socket(int new_fd);
+void handle_socket(int client_fd);
 
 int Server::Serve(const std::string &port) {
     int server_fd;
@@ -117,7 +117,8 @@ bool Network::Server::IsRunning() const {
 
 using namespace Network;
 
-void handle_socket(int new_fd) {
+// TODO: Remember to use threads to retrieve more sockets;
+void handle_socket(int client_fd) {
     size_t size;
     auto *buf = (unsigned char *) "Hello World";
     Network::ServerGreetings server_greetings{};
@@ -129,18 +130,19 @@ void handle_socket(int new_fd) {
     auto *buff = new unsigned char[64]; // unsigned char buffer[64];
     int bytes_written = Network::SerializeServerGreetings(server_greetings, buff);
 
-    size_t bytes_sent = Utils::sbytes(new_fd, buff, bytes_written);
-//    size_t bytes_sent = Utils::sbytes(new_fd, buf, 12);
+    spdlog::debug("sending {} bytes to client with fd {}", bytes_written, client_fd);
+    size_t bytes_sent = Utils::sbytes(client_fd, buff, bytes_written);
+//    size_t bytes_sent = Utils::sbytes(client_fd, buf, 12);
     if (bytes_sent != bytes_written) {
         if (bytes_sent == -1) {
-            spdlog::info("could not send this message to client (fd:{})", new_fd);
+            spdlog::info("could not send this message to client (fd:{})", client_fd);
         } else {
-            spdlog::info("client (fd:{}) disconnected", new_fd);
+            spdlog::info("client (fd:{}) disconnected", client_fd);
         }
         // Normally errors like this are some kind of connection end like: EINTR
     }
 
-    close(new_fd);
+    close(client_fd);
 
     delete[] buff;
 }
