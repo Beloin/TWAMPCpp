@@ -10,30 +10,40 @@
 namespace Network {
 
     struct ServerGreetings {
-        unsigned char _unused[12];
-        unsigned char modes[4];
-        unsigned char challenge[16];
-        unsigned char salt[16];
-        unsigned char count[4];
-        unsigned char mbz[12];
+        unsigned char _unused[12] = {0};
+        unsigned char modes[4] = {0};
+        unsigned char challenge[16] = {0};
+        unsigned char salt[16] = {0};
+        unsigned char count[4] = {0};
+        unsigned char mbz[12] = {0};
 
-//        friend std::ostream &operator<<(std::ostream &out, const ServerGreetings &c);
+        int Serialize(unsigned char *buf) const;
+
+        int Deserialize(const unsigned char *buf);
     };
 
     struct ClientGreetings {
-        unsigned char mode[4];
-        unsigned char key_id[80];
-        unsigned char token[64];
-        unsigned char client_iv[16];
+        unsigned char mode[4] = {0};
+        unsigned char key_id[80] = {0};
+        unsigned char token[64] = {0};
+        unsigned char client_iv[16] = {0};
 
-//        friend std::ostream &operator<<(std::ostream &out, const ServerGreetings &c);
+        int Serialize(unsigned char *buf) const;
+
+        int Deserialize(const unsigned char *buf);
     };
 
-    int SerializeServerGreetings(const ServerGreetings &greetings, unsigned char *buf);
-    int DeserializeServerGreetings(ServerGreetings &greetings, const unsigned char *buf);
+    struct ServerStartMessage {
+        unsigned char mbz[15] = {0}; // Accept is the last 1 byte
+        unsigned char server_iv[16] = {0};
+        unsigned char start_time[6] = {0};
+        unsigned char _mbz[8] = {0};
 
-    int SerializeClientGreetings(const ServerGreetings &greetings, unsigned char *buf);
-    int DeserializeClientGreetings(ServerGreetings &greetings, const unsigned char *buf);
+        int Serialize(unsigned char *buf) const;
+
+        int Deserialize(const unsigned char *buf);
+    };
+
 }
 
 #endif //TWAMP_MESSAGES_H

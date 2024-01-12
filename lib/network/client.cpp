@@ -50,7 +50,7 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
         if (connect(server_fd, p->ai_addr, p->ai_addrlen) == -1) {
             close(server_fd);
-            perror("client: connect");
+            perror("client connect");
             continue;
         }
 
@@ -72,17 +72,40 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
     return 0;
 }
 
-void Network::Client::Ping() {
-    unsigned char buffer[100];
+void Network::Client::StartConnection() {
+    unsigned char buffer[200];
 
-    if (!has_connected); // TODO: Create a validation here
+    if (!has_connected) {
+        spdlog::info("server not connected");
+        return;
+    }
+
+    // Should check here too
     Utils::rbytes(server_fd, buffer, 64);
+
     ServerGreetings serverGreetings{};
+    serverGreetings.Deserialize(buffer);
 
-    // TODO: Using it for test
-    std::memset(&serverGreetings, 1, sizeof(serverGreetings));
+    if (serverGreetings.modes[3] != 1) { // Not accept anything besides unauthenticated mode
+        close(server_fd);
+        return;
+    }
 
-    Network::DeserializeServerGreetings(serverGreetings, buffer);
+    ClientGreetings clientGreetings{};
+    std::memset(&clientGreetings, 0, sizeof(ClientGreetings)); // Not necesary since we are using char x[N] = {0};
+
+    clientGreetings.mode[3] = 1;
+    int size = clientGreetings.Serialize(buffer); // 164 bytes
+
+    size_t bytes_sent = Utils::sbytes(server_fd, buffer, size); // TODO: Generate error when return != size
+    if (bytes_sent != size) {
+        if (bytes_sent == -1) {
+            spdlog::info("could not send this message to server (fd:{})", server_fd);
+        } else {
+            spdlog::info("server (fd:{}) disconnected", server_fd);
+        }
+        // Normally errors like this are some kind of connection end like: EINTR
+    }
 
     close(server_fd);
 }

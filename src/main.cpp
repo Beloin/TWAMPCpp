@@ -33,8 +33,14 @@ void client_main();
 }
 
 void client_main() {
+    int status;
     Network::Client client{}; // The Control-Client and Session-Sender
 
-    client.ConnectTo("127.0.0.1", PORT);
-    client.Ping();
+    status = client.ConnectTo("127.0.0.1", PORT);
+
+    if (status) {
+        return;
+    }
+
+    client.StartConnection();
 }

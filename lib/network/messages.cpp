@@ -6,81 +6,85 @@
 #include "messages.h"
 #include "cstring"
 
+#define Serialize_char_arr(n, out, current_pt, in) for(int i = 0; i<n; i++) { in[current_pt] = out[i]; current_pt++; }
+#define Deserialize_char_arr(n, out, current_pt, in) for(int i = 0; i<n; i++) { out[i] = in[current_pt]; current_pt++; }
+
 /**
  *
  * @param greetings
  * @param buf at least 64 bytes
  * @return bytes written
  */
-int Network::SerializeServerGreetings(const ServerGreetings &greetings, unsigned char *buf) {
+int Network::ServerGreetings::Serialize(unsigned char *buf) const {
+    // htons(); // Not necessary since we are using only chars
+
     // TODO: See a better way to create this
     int current_pt = 0;
-    for (auto c: greetings._unused) {
+    for (auto c: _unused) {
         buf[current_pt] = c;
         current_pt++;
     }
 
-    for (auto c: greetings.modes) {
+    for (auto c: modes) {
         buf[current_pt] = c;
         current_pt++;
     }
 
-    for (auto c: greetings.challenge) {
+    for (auto c: challenge) {
         buf[current_pt] = c;
         current_pt++;
     }
 
-    for (auto c: greetings.salt) {
+    for (auto c: salt) {
         buf[current_pt] = c;
         current_pt++;
     }
 
-    for (auto c: greetings.count) {
+    for (auto c: count) {
         buf[current_pt] = c;
         current_pt++;
     }
 
-    for (auto c: greetings.mbz) {
+    for (auto c: mbz) {
         buf[current_pt] = c;
         current_pt++;
     }
 
-    // htons(); // Not necessary since we are using only chars
 
     return current_pt;
 }
 
-int Network::DeserializeServerGreetings(Network::ServerGreetings &greetings, const unsigned char *buf) {
+int Network::ServerGreetings::Deserialize(const unsigned char *buf) {
     // ntohs(); // Not necessary since we are using only chars
 
     int last_index = 0;
     for (int i = 0; i < 12; ++i) {
-        greetings._unused[i] = buf[last_index];
+        this->_unused[i] = buf[last_index];
         last_index++;
     }
 
     for (int i = 0; i < 4; ++i) {
-        greetings.modes[i] = buf[last_index];
+        this->modes[i] = buf[last_index];
         last_index++;
     }
 
     for (int i = 0; i < 16; ++i) {
-        greetings.challenge[i] = buf[last_index];
+        this->challenge[i] = buf[last_index];
         last_index++;
     }
 
     for (int i = 0; i < 16; ++i) {
-        greetings.salt[i] = buf[last_index];
+        this->salt[i] = buf[last_index];
         last_index++;
     }
 
     for (int i = 0; i < 4; ++i) {
-        greetings.count[i] = buf[last_index];
+        this->count[i] = buf[last_index];
         last_index++;
     }
 
     for (int i = 0; i < 12; ++i) {
-        greetings.mbz[i] = buf[last_index];
+        this->mbz[i] = buf[last_index];
         last_index++;
     }
 
@@ -88,3 +92,46 @@ int Network::DeserializeServerGreetings(Network::ServerGreetings &greetings, con
 }
 
 
+int Network::ClientGreetings::Serialize(unsigned char *buf) const {
+    int current_pt = 0;
+
+    Serialize_char_arr(4, mode, current_pt, buf);
+    Serialize_char_arr(80, key_id, current_pt, buf);
+    Serialize_char_arr(64, token, current_pt, buf);
+    Serialize_char_arr(16, client_iv, current_pt, buf);
+
+    return current_pt;
+}
+
+int Network::ClientGreetings::Deserialize(const unsigned char *buf) {
+    int current_pt{0};
+
+    Deserialize_char_arr(4, mode, current_pt, buf);
+    Deserialize_char_arr(80, key_id, current_pt, buf);
+    Deserialize_char_arr(64, token, current_pt, buf);
+    Deserialize_char_arr(16, client_iv, current_pt, buf);
+
+    return current_pt;
+}
+
+int Network::ServerStartMessage::Serialize(unsigned char *buf) const {
+    int current_pt = 0;
+
+    Serialize_char_arr(15, mbz, current_pt, buf);
+    Serialize_char_arr(16, server_iv, current_pt, buf);
+    Serialize_char_arr(6, start_time, current_pt, buf);
+    Serialize_char_arr(8, _mbz, current_pt, buf);
+
+    return current_pt;
+}
+
+int Network::ServerStartMessage::Deserialize(const unsigned char *buf) {
+    int current_pt = 0;
+
+    Deserialize_char_arr(15, mbz, current_pt, buf);
+    Deserialize_char_arr(16, server_iv, current_pt, buf);
+    Deserialize_char_arr(6, start_time, current_pt, buf);
+    Deserialize_char_arr(8, _mbz, current_pt, buf);
+
+    return current_pt;
+}

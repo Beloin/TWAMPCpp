@@ -120,19 +120,17 @@ using namespace Network;
 // TODO: Remember to use threads to retrieve more sockets;
 void handle_socket(int client_fd) {
     size_t size;
-    auto *buf = (unsigned char *) "Hello World";
     Network::ServerGreetings server_greetings{};
 
     size = sizeof(server_greetings);
-    std::memset(&server_greetings, 0, size);
+    std::memset(&server_greetings, 0, size); // Not necessary anymore
     server_greetings.modes[3] = 1;
 
-    auto *buff = new unsigned char[64]; // unsigned char buffer[64];
-    int bytes_written = Network::SerializeServerGreetings(server_greetings, buff);
+    auto *buff = new unsigned char[200]; // unsigned char buffer[64]; Used `new` to be used to using delete[]
+    int bytes_written = server_greetings.Serialize(buff);
 
     spdlog::debug("sending {} bytes to client with fd {}", bytes_written, client_fd);
     size_t bytes_sent = Utils::sbytes(client_fd, buff, bytes_written);
-//    size_t bytes_sent = Utils::sbytes(client_fd, buf, 12);
     if (bytes_sent != bytes_written) {
         if (bytes_sent == -1) {
             spdlog::info("could not send this message to client (fd:{})", client_fd);
@@ -141,6 +139,27 @@ void handle_socket(int client_fd) {
         }
         // Normally errors like this are some kind of connection end like: EINTR
     }
+
+    bytes_sent = Utils::rbytes(client_fd, buff, 164);
+    if (bytes_sent != 164) {
+        if (bytes_sent == -1) {
+            spdlog::info("could not send read this message from client (fd:{})", client_fd);
+        } else {
+            spdlog::info("client (fd:{}) disconnected", client_fd);
+        }
+    }
+
+    ClientGreetings client_greetings{};
+    client_greetings.Deserialize(buff);
+
+    if (client_greetings.mode[3] != 1) {
+        close(client_fd);
+    }
+
+    ServerStartMessage start_message{};
+
+    start_message.start_time; // TODO: Create StartTime Data
+    start_message.Serialize(buff);
 
     close(client_fd);
 

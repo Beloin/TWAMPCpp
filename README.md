@@ -91,8 +91,8 @@ Packet:
 # Dependencies
 
 1. [spdlog](https://github.com/gabime/spdlog)
-   1. `pacman -S spdlog`
-   2. `sudo apt install libspdlog-dev`
+    1. `pacman -S spdlog`
+    2. `sudo apt install libspdlog-dev`
 
 # References
 
@@ -106,10 +106,12 @@ Packet:
 
 [6]:https://datatracker.ietf.org/doc/html/rfc4656#section-3.1
 
+[7]:https://stackoverflow.com/questions/283375/detecting-tcp-client-disconnect#:~:text=154,recvXXX()%20when%20reading.
 
 1. [RFC 5357][1]
 2. [Understand Two-Way Active Measurement Protocol][2]
 3. [Beej's Guide to Network Programming][3]
+4. [Socket Disconnected][7]
 
 # Other Beloin's Projects
 

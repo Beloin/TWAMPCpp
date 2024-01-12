@@ -19,7 +19,7 @@ namespace Network {
     public:
         int ConnectTo(std::string const &host, std::string const &port);
 
-        void Ping();
+        void StartConnection();
 
     };
 
