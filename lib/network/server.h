@@ -25,6 +25,12 @@ namespace Network {
         bool should_run;
         bool server_on;
         int serverfd{};
+
+        long start_time_ms{};
+        int32_t st_integer_part{};
+        int32_t st_fractional_part{};
+
+        void handle_socket(int client_fd);
     };
 
 

@@ -20,7 +20,7 @@
 
 using Network::Server;
 
-void handle_socket(int client_fd);
+using namespace Network;
 
 int Server::Serve(const std::string &port) {
     int server_fd;
@@ -114,11 +114,10 @@ bool Network::Server::IsRunning() const {
     return server_on;
 }
 
+void parse_32bits(ServerStart &start_message, int32_t integer);
 
-using namespace Network;
-
-// TODO: Remember to use threads to retrieve more sockets;
-void handle_socket(int client_fd) {
+void Network::Server::handle_socket(int client_fd) {
+    // TODO: Remember to use threads to retrieve more sockets;
     size_t size;
     Network::ServerGreetings server_greetings{};
 
@@ -158,11 +157,18 @@ void handle_socket(int client_fd) {
 
     ServerStart start_message{};
 
-    auto start = std::chrono::system_clock::now(); // TODO: Implement a logic time control?
-    start_message.start_time; // TODO: Create StartTime Data
+    parse_32bits(start_message, st_integer_part);
     start_message.Serialize(buff);
+    Utils::sbytes(serverfd, buff, 64);
 
     close(client_fd);
 
     delete[] buff;
+}
+
+void parse_32bits(ServerStart &start_message, int32_t integer) {
+    for (int i = 0; i < 4; ++i) {
+        start_message.start_time[8 - i] =
+                integer >> (32 - (8 * (i + 1))); // 11101110...00000000 >> (24) => 00000000...11101110
+    }
 }
