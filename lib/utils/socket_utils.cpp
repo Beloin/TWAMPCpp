@@ -13,7 +13,10 @@ size_t Utils::rbytes(int socketfd, unsigned char *buf, size_t n) {
 
         // When closed, this returns 0 bytes everytime it recv
         if ((bytes = recv(socketfd, (void *) (buf + index), missing_bytes, 0)) == -1 || bytes == 0) { // or &buf[index]
-            if (bytes == -1) perror("could not get bytes"); // TODO: Implement a return or throws?
+            if (bytes == -1) {
+                perror("could not get bytes");
+                return bytes;
+            } // TODO: Implement a return or throws?
             total = bytes;
             break;
         }

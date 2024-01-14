@@ -4,10 +4,9 @@
 
 #include <netinet/in.h>
 #include "messages.h"
-#include "cstring"
 
-#define Serialize_char_arr(n, out, current_pt, in) for(int i = 0; i<n; i++) { in[current_pt] = out[i]; current_pt++; }
-#define Deserialize_char_arr(n, out, current_pt, in) for(int i = 0; i<n; i++) { out[i] = in[current_pt]; current_pt++; }
+#define Serialize_char_arr(out, current_pt, in) for(auto c : out) { in[current_pt] = c; current_pt++; }
+#define Deserialize_char_arr(out, current_pt, in) for(auto c : out) { c = in[current_pt]; current_pt++; }
 
 /**
  *
@@ -95,10 +94,10 @@ int Network::ServerGreetings::Deserialize(const unsigned char *buf) {
 int Network::ClientGreetings::Serialize(unsigned char *buf) const {
     int current_pt = 0;
 
-    Serialize_char_arr(4, mode, current_pt, buf);
-    Serialize_char_arr(80, key_id, current_pt, buf);
-    Serialize_char_arr(64, token, current_pt, buf);
-    Serialize_char_arr(16, client_iv, current_pt, buf);
+    Serialize_char_arr(mode, current_pt, buf);
+    Serialize_char_arr(key_id, current_pt, buf);
+    Serialize_char_arr(token, current_pt, buf);
+    Serialize_char_arr(client_iv, current_pt, buf);
 
     return current_pt;
 }
@@ -106,32 +105,32 @@ int Network::ClientGreetings::Serialize(unsigned char *buf) const {
 int Network::ClientGreetings::Deserialize(const unsigned char *buf) {
     int current_pt{0};
 
-    Deserialize_char_arr(4, mode, current_pt, buf);
-    Deserialize_char_arr(80, key_id, current_pt, buf);
-    Deserialize_char_arr(64, token, current_pt, buf);
-    Deserialize_char_arr(16, client_iv, current_pt, buf);
+    Deserialize_char_arr(mode, current_pt, buf);
+    Deserialize_char_arr(key_id, current_pt, buf);
+    Deserialize_char_arr(token, current_pt, buf);
+    Deserialize_char_arr(client_iv, current_pt, buf);
 
     return current_pt;
 }
 
-int Network::ServerStartMessage::Serialize(unsigned char *buf) const {
+int Network::ServerStart::Serialize(unsigned char *buf) const {
     int current_pt = 0;
 
-    Serialize_char_arr(15, mbz, current_pt, buf);
-    Serialize_char_arr(16, server_iv, current_pt, buf);
-    Serialize_char_arr(6, start_time, current_pt, buf);
-    Serialize_char_arr(8, _mbz, current_pt, buf);
+    Serialize_char_arr(mbz, current_pt, buf);
+    Serialize_char_arr(server_iv, current_pt, buf);
+    Serialize_char_arr(start_time, current_pt, buf);
+    Serialize_char_arr(_mbz, current_pt, buf);
 
     return current_pt;
 }
 
-int Network::ServerStartMessage::Deserialize(const unsigned char *buf) {
+int Network::ServerStart::Deserialize(const unsigned char *buf) {
     int current_pt = 0;
 
-    Deserialize_char_arr(15, mbz, current_pt, buf);
-    Deserialize_char_arr(16, server_iv, current_pt, buf);
-    Deserialize_char_arr(6, start_time, current_pt, buf);
-    Deserialize_char_arr(8, _mbz, current_pt, buf);
+    Deserialize_char_arr(mbz, current_pt, buf);
+    Deserialize_char_arr(server_iv, current_pt, buf);
+    Deserialize_char_arr(start_time, current_pt, buf);
+    Deserialize_char_arr(_mbz, current_pt, buf);
 
     return current_pt;
 }

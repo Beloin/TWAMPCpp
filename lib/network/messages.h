@@ -33,10 +33,10 @@ namespace Network {
         int Deserialize(const unsigned char *buf);
     };
 
-    struct ServerStartMessage {
-        unsigned char mbz[15] = {0}; // Accept is the last 1 byte
+    struct ServerStart {
+        unsigned char mbz[16] = {0}; // Accept is the last 1 byte
         unsigned char server_iv[16] = {0};
-        unsigned char start_time[6] = {0};
+        unsigned char start_time[8] = {0};
         unsigned char _mbz[8] = {0};
 
         int Serialize(unsigned char *buf) const;

@@ -74,19 +74,17 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
 void Network::Client::StartConnection() {
     unsigned char buffer[200];
+    size_t read;
 
     if (!has_connected) {
         spdlog::info("server not connected");
         return;
     }
+    ServerGreetings serverGreetings{};
 
     // Should check here too
-    Utils::rbytes(server_fd, buffer, 64);
-
-    ServerGreetings serverGreetings{};
-    serverGreetings.Deserialize(buffer);
-
-    if (serverGreetings.modes[3] != 1) { // Not accept anything besides unauthenticated mode
+    read = readServerGreetings(buffer, serverGreetings);
+    if (read <= 0 || serverGreetings.modes[3] != 1) { // Not accept anything besides unauthenticated mode
         close(server_fd);
         return;
     }
@@ -96,8 +94,8 @@ void Network::Client::StartConnection() {
 
     clientGreetings.mode[3] = 1;
     int size = clientGreetings.Serialize(buffer); // 164 bytes
-
     size_t bytes_sent = Utils::sbytes(server_fd, buffer, size); // TODO: Generate error when return != size
+
     if (bytes_sent != size) {
         if (bytes_sent == -1) {
             spdlog::info("could not send this message to server (fd:{})", server_fd);
@@ -107,5 +105,26 @@ void Network::Client::StartConnection() {
         // Normally errors like this are some kind of connection end like: EINTR
     }
 
+    ServerStart server_start{};
+    read = readServerStart(buffer, server_start);
+
+    if (read <= 0 || server_start.mbz[15] != 0) {
+        close(server_fd);
+        return;
+    }
+
     close(server_fd);
+}
+
+size_t Network::Client::readServerStart(unsigned char *buffer, Network::ServerStart &server_start) const {
+    size_t read;
+    read = Utils::rbytes(server_fd, buffer, 45);
+    server_start.Deserialize(buffer);
+    return read;
+}
+
+size_t Network::Client::readServerGreetings(unsigned char *buffer, Network::ServerGreetings &serverGreetings) const {
+    size_t r = Utils::rbytes(server_fd, buffer, 64);
+    serverGreetings.Deserialize(buffer);
+    return r;
 }

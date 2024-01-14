@@ -6,6 +6,7 @@
 #define TWAMP_CLIENT_H
 
 #include <string>
+#include "messages.h"
 
 namespace Network {
     class Client {
@@ -21,6 +22,9 @@ namespace Network {
 
         void StartConnection();
 
+        size_t readServerGreetings(unsigned char *buffer, Network::ServerGreetings &serverGreetings) const;
+
+        size_t readServerStart(unsigned char *buffer, ServerStart &server_start) const;
     };
 
 }

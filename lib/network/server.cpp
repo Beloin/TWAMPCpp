@@ -156,8 +156,9 @@ void handle_socket(int client_fd) {
         close(client_fd);
     }
 
-    ServerStartMessage start_message{};
+    ServerStart start_message{};
 
+    auto start = std::chrono::system_clock::now(); // TODO: Implement a logic time control?
     start_message.start_time; // TODO: Create StartTime Data
     start_message.Serialize(buff);
 
