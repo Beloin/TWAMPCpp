@@ -65,6 +65,7 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
     inet_ntop(p->ai_family, Utils::get_in_addr((struct sockaddr *) p->ai_addr), s, sizeof s);
     spdlog::info("client: connecting to {} with fd {}", s, server_fd);
+    server_addr = s;
     freeaddrinfo(servinfo);
 
     has_connected = true;
@@ -114,6 +115,7 @@ void Network::Client::StartConnection() {
         return;
     }
 
+    spdlog::info("connection successfully with server {}", server_addr);
     close(server_fd);
 }
 

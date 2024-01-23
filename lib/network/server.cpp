@@ -101,6 +101,12 @@ int Server::Serve(const std::string &port) {
 }
 
 Server::Server() : should_run(true), server_on(false) {
+    using std::chrono::milliseconds;
+    auto now = std::chrono::system_clock::now();
+    auto epoch = now.time_since_epoch();
+    auto ms_since_epoch = std::chrono::duration_cast<milliseconds>(epoch);
+    long ms = ms_since_epoch.count();
+    // Use float
     st_integer_part = 1;
 }
 
@@ -175,7 +181,7 @@ void Network::Server::handle_socket(int client_fd) {
 
 void parse_decimal_float(ServerStart &start_message, int32_t integer) {
     for (int i = 0; i < 4; ++i) {
-        start_message.start_time[8 - i] = // Shouldn't be 4?
+        start_message.start_time[4 - i] = // Shouldn't be 4?
                 integer >> (32 - (8 * (i + 1))); // 11101110...00000000 >> (24) => 00000000...11101110
     }
 }

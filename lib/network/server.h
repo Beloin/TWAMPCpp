@@ -30,6 +30,8 @@ namespace Network {
         int32_t st_integer_part{};
         int32_t st_fractional_part{};
 
+        // TODO: Create a client list
+
         void handle_socket(int client_fd);
     };
 

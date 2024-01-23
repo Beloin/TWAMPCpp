@@ -15,6 +15,8 @@ namespace Network {
         bool has_connected = false;
         int server_fd{};
 
+        std::string server_addr;
+
         int UpdaterServerFd(std::string const &host, std::string const &port);
 
     public:
