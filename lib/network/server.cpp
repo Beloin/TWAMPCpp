@@ -163,6 +163,7 @@ void Network::Server::handle_socket(int client_fd) {
 
     parse_decimal_float(start_message, st_integer_part);
     start_message.Serialize(buff);
+    // TODO: Problem here
     if ((bytes_sent = Utils::sbytes(serverfd, buff, 64)) != 64) {
         spdlog::error("could not send `Server-Start` message: Bytes sent = {}", bytes_sent);
         close(client_fd);
