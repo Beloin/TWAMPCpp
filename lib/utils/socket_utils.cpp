@@ -5,10 +5,10 @@
 #include "utils/socket_utils.h"
 #include <cstdio>
 
-size_t Utils::rbytes(int socketfd, unsigned char *buf, size_t n) {
-    size_t bytes, missing_bytes, total = 0;
+ssize_t Utils::rbytes(int socketfd, unsigned char *buf, size_t n) {
+    ssize_t bytes, missing_bytes, total = 0;
     while (total != n) { // Read all bytes into buf
-        missing_bytes = n - total;
+        missing_bytes = ((ssize_t) n) - total;
         size_t index = total;
 
         // When closed, this returns 0 bytes everytime it recv
@@ -28,14 +28,17 @@ size_t Utils::rbytes(int socketfd, unsigned char *buf, size_t n) {
 }
 
 
-size_t Utils::sbytes(int socketfd, unsigned char *buf, size_t n) {
-    size_t bytes, missing_bytes, total = 0;
+ssize_t Utils::sbytes(int socketfd, unsigned char *buf, size_t n) {
+    ssize_t bytes, missing_bytes, total = 0;
     while (total != n) {
-        missing_bytes = n - total;
-        size_t index = total;
+        missing_bytes = ((ssize_t)n) - total;
+        ssize_t index = total;
 
         if ((bytes = send(socketfd, (void *) (buf + index), missing_bytes, 0)) == -1 || bytes == 0) {
-            if (bytes == -1) perror("could not send bytes"); // TODO: Implement a return or throws?
+            if (bytes == -1) {
+                perror("could not send bytes");
+                return bytes;
+            } // TODO: Implement a return or throws?
             total = bytes;
             break;
         }

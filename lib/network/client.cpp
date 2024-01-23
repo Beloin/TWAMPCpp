@@ -74,7 +74,7 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
 void Network::Client::StartConnection() {
     unsigned char buffer[200];
-    size_t read;
+    ssize_t read;
 
     if (!has_connected) {
         spdlog::info("server not connected");
@@ -109,6 +109,7 @@ void Network::Client::StartConnection() {
     read = readServerStart(buffer, server_start);
 
     if (read <= 0 || server_start.mbz[15] != 0) {
+        spdlog::error("could not get `Server-Start` message: Bytes read {}", read);
         close(server_fd);
         return;
     }
@@ -116,15 +117,15 @@ void Network::Client::StartConnection() {
     close(server_fd);
 }
 
-size_t Network::Client::readServerStart(unsigned char *buffer, Network::ServerStart &server_start) const {
-    size_t read;
-    read = Utils::rbytes(server_fd, buffer, 45);
+ssize_t Network::Client::readServerStart(unsigned char *buffer, Network::ServerStart &server_start) const {
+    ssize_t read;
+    read = Utils::rbytes(server_fd, buffer, 64);
     server_start.Deserialize(buffer);
     return read;
 }
 
-size_t Network::Client::readServerGreetings(unsigned char *buffer, Network::ServerGreetings &serverGreetings) const {
-    size_t r = Utils::rbytes(server_fd, buffer, 64);
+ssize_t Network::Client::readServerGreetings(unsigned char *buffer, Network::ServerGreetings &serverGreetings) const {
+    ssize_t r = Utils::rbytes(server_fd, buffer, 64);
     serverGreetings.Deserialize(buffer);
     return r;
 }

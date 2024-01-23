@@ -100,7 +100,9 @@ int Server::Serve(const std::string &port) {
     return 0;
 }
 
-Server::Server() : should_run(true), server_on(false) {}
+Server::Server() : should_run(true), server_on(false) {
+    st_integer_part = 1;
+}
 
 Network::Server::~Server() {
     server_on = false;
@@ -114,11 +116,11 @@ bool Network::Server::IsRunning() const {
     return server_on;
 }
 
-void parse_32bits(ServerStart &start_message, int32_t integer);
+void parse_decimal_float(ServerStart &start_message, int32_t integer);
 
 void Network::Server::handle_socket(int client_fd) {
     // TODO: Remember to use threads to retrieve more sockets;
-    size_t size;
+    ssize_t size;
     Network::ServerGreetings server_greetings{};
 
     size = sizeof(server_greetings);
@@ -129,7 +131,7 @@ void Network::Server::handle_socket(int client_fd) {
     int bytes_written = server_greetings.Serialize(buff);
 
     spdlog::debug("sending {} bytes to client with fd {}", bytes_written, client_fd);
-    size_t bytes_sent = Utils::sbytes(client_fd, buff, bytes_written);
+    ssize_t bytes_sent = Utils::sbytes(client_fd, buff, bytes_written);
     if (bytes_sent != bytes_written) {
         if (bytes_sent == -1) {
             spdlog::info("could not send this message to client (fd:{})", client_fd);
@@ -152,23 +154,28 @@ void Network::Server::handle_socket(int client_fd) {
     client_greetings.Deserialize(buff);
 
     if (client_greetings.mode[3] != 1) {
+        spdlog::info("client rejected connection with mode {}", client_greetings.mode[3]);
         close(client_fd);
+        return;
     }
 
     ServerStart start_message{};
 
-    parse_32bits(start_message, st_integer_part);
+    parse_decimal_float(start_message, st_integer_part);
     start_message.Serialize(buff);
-    Utils::sbytes(serverfd, buff, 64);
+    if ((bytes_sent = Utils::sbytes(serverfd, buff, 64)) != 64) {
+        spdlog::error("could not send `Server-Start` message: Bytes sent = {}", bytes_sent);
+        close(client_fd);
+    }
 
     close(client_fd);
 
     delete[] buff;
 }
 
-void parse_32bits(ServerStart &start_message, int32_t integer) {
+void parse_decimal_float(ServerStart &start_message, int32_t integer) {
     for (int i = 0; i < 4; ++i) {
-        start_message.start_time[8 - i] =
+        start_message.start_time[8 - i] = // Shouldn't be 4?
                 integer >> (32 - (8 * (i + 1))); // 11101110...00000000 >> (24) => 00000000...11101110
     }
 }

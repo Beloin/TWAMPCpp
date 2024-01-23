@@ -90,7 +90,14 @@ Packet:
 
 
 
-Timestamp
+Timestamp:
+
+The format of the timestamp is the same as in [RFC1305] and is as
+follows: the first 32 bits represent the unsigned integer number of
+seconds elapsed since 0h on 1 January 1900; the next 32 bits
+represent the fractional part of a second that has elapsed since
+then.
+
 ```
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1

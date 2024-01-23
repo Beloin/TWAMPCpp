@@ -6,7 +6,7 @@
 #include "messages.h"
 
 #define Serialize_char_arr(out, current_pt, in) for(auto c : out) { in[current_pt] = c; current_pt++; }
-#define Deserialize_char_arr(out, current_pt, in) for(auto c : out) { c = in[current_pt]; current_pt++; }
+#define Deserialize_char_arr(out, current_pt, in) for(auto &c : out) { c = in[current_pt]; current_pt++; }
 
 /**
  *
@@ -103,7 +103,7 @@ int Network::ClientGreetings::Serialize(unsigned char *buf) const {
 }
 
 int Network::ClientGreetings::Deserialize(const unsigned char *buf) {
-    int current_pt{0};
+    int current_pt = 0;
 
     Deserialize_char_arr(mode, current_pt, buf);
     Deserialize_char_arr(key_id, current_pt, buf);
