@@ -99,6 +99,7 @@ int Server::Serve(const std::string &port) {
 
     return 0;
 }
+uint32_t get_frac(double value);
 
 Server::Server() : should_run(true), server_on(false) {
     using std::chrono::milliseconds;
@@ -112,17 +113,28 @@ Server::Server() : should_run(true), server_on(false) {
     double debug_cp = value;
 
     st_integer_part = (int32_t) value;
+    st_fractional_part = get_frac(value);
+}
 
-    double frac = modf(value, nullptr);
+uint32_t get_frac(double value) {
+    double frac = modf(value, nullptr); // TODO: Ignore this
+
     auto *p = reinterpret_cast<uint64_t *>(&frac);
     // Or:
-    union {double db; uint64_t i;} vv = {frac};
+    union {
+        double db;
+        uint64_t i;
+    } pp = {frac};
 
-    unsigned char exp = ((*p) & (0xFFFF)) >> 23;
+    // 52 -> mantissa | 0x7FF -> Mask sign and 10 less significant bits exponent
+    // 0x3FF -> bias (??) => https://en.wikipedia.org/wiki/Offset_binary
+    int e = (int) ((pp.i >> 52) & 0x7FF) - 0x3FF;
+    if (e>=52) return 0;
 
+    pp.i &= 1ULL<<63; // This fixes in double... but we need in integer
 
-//    uint64_t converted = reinterpret_cast<uint64_t>(value);
-    st_fractional_part = 0;
+    // TODO: Get exponent inverse it and multiply the mantissa by it
+
 }
 
 Network::Server::~Server() {
