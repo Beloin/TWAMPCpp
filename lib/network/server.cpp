@@ -105,9 +105,24 @@ Server::Server() : should_run(true), server_on(false) {
     auto now = std::chrono::system_clock::now();
     auto epoch = now.time_since_epoch();
     auto ms_since_epoch = std::chrono::duration_cast<milliseconds>(epoch);
-    long ms = ms_since_epoch.count();
-    // Use float
-    st_integer_part = 1;
+
+    // Not using double to
+    auto ms = (double) ms_since_epoch.count();
+    auto value = ms / 1000; // Seconds to float works as expected till  va
+    double debug_cp = value;
+
+    st_integer_part = (int32_t) value;
+
+    double frac = modf(value, nullptr);
+    auto *p = reinterpret_cast<uint64_t *>(&frac);
+    // Or:
+    union {double db; uint64_t i;} vv = {frac};
+
+    unsigned char exp = ((*p) & (0xFFFF)) >> 23;
+
+
+//    uint64_t converted = reinterpret_cast<uint64_t>(value);
+    st_fractional_part = 0;
 }
 
 Network::Server::~Server() {

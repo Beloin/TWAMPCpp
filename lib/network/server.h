@@ -27,8 +27,8 @@ namespace Network {
         int serverfd{};
 
         long start_time_ms{};
-        int32_t st_integer_part{};
-        int32_t st_fractional_part{};
+        uint32_t st_integer_part{};
+        uint32_t st_fractional_part{};
 
         // TODO: Create a client list
 
