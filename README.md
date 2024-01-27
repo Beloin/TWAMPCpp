@@ -110,7 +110,8 @@ then.
 
 ## About Floating Point Numbers
 
-{\displaystyle (-1)^{\text{sign}}(1.b_{51}b_{50}...b_{0})_{2}\times 2^{e-1023}}
+The developer had to implement own float [IEEE 754][10] parser to get integral and fractional part
+of `timestamp`.
 
 # Dependencies
 
@@ -131,6 +132,12 @@ then.
 [6]:https://datatracker.ietf.org/doc/html/rfc4656#section-3.1
 
 [7]:https://stackoverflow.com/questions/283375/detecting-tcp-client-disconnect#:~:text=154,recvXXX()%20when%20reading.
+
+[8]:https://en.wikipedia.org/wiki/Offset_binary
+
+[9]:https://git.musl-libc.org/cgit/musl/tree/src/math/modf.c
+
+[10]:https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 
 1. [RFC 5357][1]
 2. [Understand Two-Way Active Measurement Protocol][2]

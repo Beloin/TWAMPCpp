@@ -99,6 +99,7 @@ int Server::Serve(const std::string &port) {
 
     return 0;
 }
+
 uint32_t get_frac(double value);
 
 Server::Server() : should_run(true), server_on(false) {
@@ -113,33 +114,51 @@ Server::Server() : should_run(true), server_on(false) {
     double debug_cp = value;
 
     st_integer_part = (int32_t) value;
-    st_fractional_part = get_frac(value);
+    st_fractional_part = get_frac(1.75);
 }
 
 uint32_t get_frac(double value) {
-    double frac = modf(value, nullptr); // TODO: Ignore this
-
-    auto *p = reinterpret_cast<uint64_t *>(&frac);
+//    double frac = modf(value, nullptr); // TODO: Ignore this
+    auto *p = reinterpret_cast<uint64_t *>(&value);
     // Or:
     union {
         double db;
         uint64_t i;
-    } pp = {frac};
+    } pp = {value};
+
+    // Inspired by: https://git.musl-libc.org/cgit/musl/tree/src/math/modf.c
 
     // 52 -> mantissa
     // 0x7FF -> Mask sign and 10 less significant bits exponent
-    // 0x3FF -> bias (??) => https://en.wikipedia.org/wiki/Offset_binary
-    // Inspired at: https://git.musl-libc.org/cgit/musl/tree/src/math/modf.c
-    int e = (int) ((pp.i >> 52) & 0x7FF) - 0x3FF;
-    if (e>=52) return 0; // There's no fraction part
+    // 0x3FF -> bias => https://en.wikipedia.org/wiki/Offset_binary
+    uint64_t full_exp = (pp.i >> 52) & 0x7FF;
+    int e = (int) (full_exp - 0x3FF);
 
-    uint64_t mask = -1ULL>>12>>e;
+    // There's no fraction part
+    if (e >= 52) return 0;
 
+    // There's no integral part
+    if (e < 0) {
+        // Filter exponent and sign
+        uint64_t mantissa = (-1ULL >> 12) & pp.i; // 0_00000000000_XXXX...
 
-    pp.i &= 1ULL<<63; // This fixes in double... but we need in integer
+        uint32_t fractional = 1;
+        // TODO: Convert 0.XXXXX -> to decimal
+        for (char i = 1; i <= 52; ++i) {
+            bool temp = (mantissa >> (52 - i)) == 1;
 
-    // TODO: Get exponent inverse it and multiply the mantissa by it
+            fractional += (uint32_t) (((double) temp) * pow(2, -i));
+        }
 
+        return fractional;
+    }
+
+    // -1ULL => 11111111_11111111_...
+    // <<12 => Zero the exponent and sign
+    // e => The "divider"
+    uint64_t mask = -1ULL >> 12 >> e;
+
+    return 0;
 }
 
 Network::Server::~Server() {
@@ -154,7 +173,7 @@ bool Network::Server::IsRunning() const {
     return server_on;
 }
 
-void parse_decimal_float(ServerStart &start_message, int32_t integer);
+void parse_decimal_float(ServerStart &start_message, uint32_t integer);
 
 void Network::Server::handle_socket(int client_fd) {
     // TODO: Remember to use threads to retrieve more sockets;
