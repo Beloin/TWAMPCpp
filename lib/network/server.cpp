@@ -109,7 +109,7 @@ Server::Server() : should_run(true), server_on(false) {
     auto ms_since_epoch = std::chrono::duration_cast<milliseconds>(epoch);
 
     // Not using double to
-    auto ms = (double) ms_since_epoch.count();
+    auto ms = (double) ms_since_epoch.count(); // TODO: Change to since 0h on 1 January 1900
     auto value = ms / 1000; // Seconds to float works as expected till  va
     double debug_cp = value;
 
@@ -132,33 +132,31 @@ uint32_t get_frac(double value) {
     // 0x7FF -> Mask sign and 10 less significant bits exponent
     // 0x3FF -> bias => https://en.wikipedia.org/wiki/Offset_binary
     uint64_t full_exp = (pp.i >> 52) & 0x7FF;
-    int e = (int) (full_exp - 0x3FF);
+    int real_exp = (int) (full_exp - 0x3FF);
 
     // There's no fraction part
-    if (e >= 52) return 0;
+    if (real_exp >= 52) return 0;
 
     // There's no integral part
-    if (e < 0) {
-        // Filter exponent and sign
-        uint64_t mantissa = (-1ULL >> 12) & pp.i; // 0_00000000000_XXXX...
-
-        uint32_t fractional = 1;
-        // TODO: Convert 0.XXXXX -> to decimal
-        for (char i = 1; i <= 52; ++i) {
-            bool temp = (mantissa >> (52 - i)) == 1;
-
-            fractional += (uint32_t) (((double) temp) * pow(2, -i));
-        }
-
-        return fractional;
+    if (real_exp < 0) {
+        auto i1 = (uint32_t) (value * pow(10, 10)); // 10 is the precision
+        return i1;
     }
 
-    // -1ULL => 11111111_11111111_...
-    // <<12 => Zero the exponent and sign
-    // e => The "divider"
-    uint64_t mask = -1ULL >> 12 >> e;
+    // "-1ULL" => 11111111_11111111_...
+    // "<<12" => Zero the exponent and sign
+    // "real_exp" => The resultant integer part mask
+    uint64_t mask = -1ULL >> 12 >> real_exp;
+    if ((pp.i & mask) == 0) { // Again there's no fraction
+        return 0;
+    }
 
-    return 0;
+    // TODO: I think we can sent the fractional part as it is in double
+    // Example for 1.75: Fractional == 0.11, so we sent this 11
+    pp.i &= ~mask; // Retrieve only integer part
+    double only_frac = value - pp.db;
+    auto i1 = (uint32_t) (only_frac * pow(10, 5)); // 10 is the precision
+    return i1;
 }
 
 Network::Server::~Server() {
