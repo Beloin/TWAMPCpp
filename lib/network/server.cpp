@@ -126,10 +126,15 @@ uint32_t get_frac(double value) {
         uint64_t i;
     } pp = {frac};
 
-    // 52 -> mantissa | 0x7FF -> Mask sign and 10 less significant bits exponent
+    // 52 -> mantissa
+    // 0x7FF -> Mask sign and 10 less significant bits exponent
     // 0x3FF -> bias (??) => https://en.wikipedia.org/wiki/Offset_binary
+    // Inspired at: https://git.musl-libc.org/cgit/musl/tree/src/math/modf.c
     int e = (int) ((pp.i >> 52) & 0x7FF) - 0x3FF;
-    if (e>=52) return 0;
+    if (e>=52) return 0; // There's no fraction part
+
+    uint64_t mask = -1ULL>>12>>e;
+
 
     pp.i &= 1ULL<<63; // This fixes in double... but we need in integer
 
@@ -206,7 +211,7 @@ void Network::Server::handle_socket(int client_fd) {
     delete[] buff;
 }
 
-void parse_decimal_float(ServerStart &start_message, int32_t integer) {
+void parse_decimal_float(ServerStart &start_message, uint32_t integer) {
     for (int i = 0; i < 4; ++i) {
         start_message.start_time[4 - i] = // Shouldn't be 4?
                 integer >> (32 - (8 * (i + 1))); // 11101110...00000000 >> (24) => 00000000...11101110

@@ -108,6 +108,10 @@ then.
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
 
+## About Floating Point Numbers
+
+{\displaystyle (-1)^{\text{sign}}(1.b_{51}b_{50}...b_{0})_{2}\times 2^{e-1023}}
+
 # Dependencies
 
 1. [spdlog](https://github.com/gabime/spdlog)
