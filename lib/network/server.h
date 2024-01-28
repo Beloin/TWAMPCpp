@@ -32,7 +32,7 @@ namespace Network {
 
         // TODO: Create a client list
 
-        void handle_socket(int client_fd);
+        void handle_socket(int client_fd) const;
     };
 
 

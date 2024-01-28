@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include "messages.h"
 
+// TODO: Use function please
 #define Serialize_char_arr(out, current_pt, in) for(auto c : out) { in[current_pt] = c; current_pt++; }
 #define Deserialize_char_arr(out, current_pt, in) for(auto &c : out) { c = in[current_pt]; current_pt++; }
 

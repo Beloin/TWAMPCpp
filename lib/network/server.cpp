@@ -22,6 +22,8 @@ using Network::Server;
 
 using namespace Network;
 
+uint32_t get_fractional_as_integer(double value);
+
 int Server::Serve(const std::string &port) {
     int server_fd;
     struct addrinfo hints{}, *servinfo, *p;
@@ -100,7 +102,6 @@ int Server::Serve(const std::string &port) {
     return 0;
 }
 
-uint32_t get_frac(double value);
 
 Server::Server() : should_run(true), server_on(false) {
     using std::chrono::milliseconds;
@@ -113,13 +114,13 @@ Server::Server() : should_run(true), server_on(false) {
     auto value = ms / 1000; // Seconds to float works as expected till  va
 
     st_integer_part = (int32_t) value;
-    st_fractional_part = get_frac(value);
+    st_fractional_part = get_fractional_as_integer(value);
 }
 
 // Example for 1.75: Fractional == 0.11, so should return 11 followed by 30 zeros
-uint32_t get_frac(double value) {
-//    double frac = modf(value, nullptr); // TODO: Ignore this
-    auto *p = reinterpret_cast<uint64_t *>(&value);
+// TODO: Create tests for this one because we will change it
+uint32_t get_fractional_as_integer(double value) {
+    // auto *p = reinterpret_cast<uint64_t *>(&value);
     // Or:
     typedef union {
         double real;
@@ -140,7 +141,7 @@ uint32_t get_frac(double value) {
     if (real_exp >= 52) return 0;
 
     // There's no integral part
-    if (real_exp < 0) { // TODO: Should add 1 to start since we don't have the fist one
+    if (real_exp < 0) {
         auto mantissa = (pp.bits << 11) | (1ULL << 63); // Add "1" as first bit
         mantissa >>= 32; // So we can store it into 32 bits
         return (uint32_t) mantissa;
@@ -177,7 +178,7 @@ bool Network::Server::IsRunning() const {
 
 void parse_decimal_float(ServerStart &start_message, uint32_t integer);
 
-void Network::Server::handle_socket(int client_fd) {
+void Network::Server::handle_socket(int client_fd) const {
     // TODO: Remember to use threads to retrieve more sockets;
     ssize_t size;
     Network::ServerGreetings server_greetings{};
@@ -220,7 +221,15 @@ void Network::Server::handle_socket(int client_fd) {
 
     ServerStart start_message{};
 
-    parse_decimal_float(start_message, st_integer_part);
+    for (int i = 0; i < 4; ++i) {
+        int offset = 8 * (i + 1);
+        start_message.start_time[i] =
+                st_integer_part >> (32 - offset); // 11101110...00000000 >> (24) => 00000000...11101110
+
+        start_message.start_time[4 + i] =
+                st_fractional_part >> (32 - offset); // 11101110...00000000 >> (24) => 00000000...11101110
+    }
+
     start_message.Serialize(buff);
     if ((bytes_sent = Utils::sbytes(client_fd, buff, 64)) != 64) {
         spdlog::error("could not send `Server-Start` message: Bytes sent = {}", bytes_sent);
@@ -232,9 +241,3 @@ void Network::Server::handle_socket(int client_fd) {
     delete[] buff;
 }
 
-void parse_decimal_float(ServerStart &start_message, uint32_t integer) {
-    for (int i = 0; i < 4; ++i) {
-        start_message.start_time[4 - i] = // Shouldn't be 4?
-                integer >> (32 - (8 * (i + 1))); // 11101110...00000000 >> (24) => 00000000...11101110
-    }
-}
