@@ -111,11 +111,9 @@ Server::Server() : should_run(true), server_on(false) {
     // Not using double to
     auto ms = (double) ms_since_epoch.count(); // TODO: Change to since 0h on 1 January 1900
     auto value = ms / 1000; // Seconds to float works as expected till  va
-    double debug_cp = value;
 
     st_integer_part = (int32_t) value;
-    st_fractional_part = get_frac(1.75);
-    st_fractional_part = get_frac(.75);
+    st_fractional_part = get_frac(value);
 }
 
 // Example for 1.75: Fractional == 0.11, so should return 11 followed by 30 zeros
@@ -143,7 +141,7 @@ uint32_t get_frac(double value) {
 
     // There's no integral part
     if (real_exp < 0) { // TODO: Should add 1 to start since we don't have the fist one
-        auto mantissa = pp.bits << 12;
+        auto mantissa = (pp.bits << 11) | (1ULL << 63); // Add "1" as first bit
         mantissa >>= 32; // So we can store it into 32 bits
         return (uint32_t) mantissa;
     }
@@ -157,9 +155,12 @@ uint32_t get_frac(double value) {
     }
 
     pp.bits &= ~mask; // Retrieve only integer part
-    double_parser only_frac = {value - pp.real};
-    only_frac.bits = (only_frac.bits << 12) >> 32;
-    return (uint32_t) only_frac.bits;
+    double temp = value - pp.real;
+    double_parser only_frac = {temp};
+
+    auto mantissa = (only_frac.bits << 11) | (1ULL << 63); // Add "1" as first bit
+    mantissa >>= 32;
+    return (uint32_t) mantissa;
 }
 
 Network::Server::~Server() {
