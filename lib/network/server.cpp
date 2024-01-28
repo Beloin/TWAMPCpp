@@ -115,48 +115,51 @@ Server::Server() : should_run(true), server_on(false) {
 
     st_integer_part = (int32_t) value;
     st_fractional_part = get_frac(1.75);
+    st_fractional_part = get_frac(.75);
 }
 
+// Example for 1.75: Fractional == 0.11, so should return 11 followed by 30 zeros
 uint32_t get_frac(double value) {
 //    double frac = modf(value, nullptr); // TODO: Ignore this
     auto *p = reinterpret_cast<uint64_t *>(&value);
     // Or:
-    union {
-        double db;
-        uint64_t i;
-    } pp = {value};
+    typedef union {
+        double real;
+        uint64_t bits;
+    } double_parser;
+
+    double_parser pp = {value};
 
     // Inspired by: https://git.musl-libc.org/cgit/musl/tree/src/math/modf.c
 
     // 52 -> mantissa
-    // 0x7FF -> Mask sign and 10 less significant bits exponent
+    // 0x7FF -> Mask sign and 11 less significant bits exponent
     // 0x3FF -> bias => https://en.wikipedia.org/wiki/Offset_binary
-    uint64_t full_exp = (pp.i >> 52) & 0x7FF;
+    uint64_t full_exp = (pp.bits >> 52) & 0x7FF;
     int real_exp = (int) (full_exp - 0x3FF);
 
     // There's no fraction part
     if (real_exp >= 52) return 0;
 
     // There's no integral part
-    if (real_exp < 0) {
-        auto i1 = (uint32_t) (value * pow(10, 10)); // 10 is the precision
-        return i1;
+    if (real_exp < 0) { // TODO: Should add 1 to start since we don't have the fist one
+        auto mantissa = pp.bits << 12;
+        mantissa >>= 32; // So we can store it into 32 bits
+        return (uint32_t) mantissa;
     }
 
     // "-1ULL" => 11111111_11111111_...
     // "<<12" => Zero the exponent and sign
     // "real_exp" => The resultant integer part mask
     uint64_t mask = -1ULL >> 12 >> real_exp;
-    if ((pp.i & mask) == 0) { // Again there's no fraction
+    if ((pp.bits & mask) == 0) { // Again there's no fraction part
         return 0;
     }
 
-    // TODO: I think we can sent the fractional part as it is in double
-    // Example for 1.75: Fractional == 0.11, so we sent this 11
-    pp.i &= ~mask; // Retrieve only integer part
-    double only_frac = value - pp.db;
-    auto i1 = (uint32_t) (only_frac * pow(10, 5)); // 10 is the precision
-    return i1;
+    pp.bits &= ~mask; // Retrieve only integer part
+    double_parser only_frac = {value - pp.real};
+    only_frac.bits = (only_frac.bits << 12) >> 32;
+    return (uint32_t) only_frac.bits;
 }
 
 Network::Server::~Server() {
