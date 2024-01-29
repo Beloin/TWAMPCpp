@@ -110,11 +110,12 @@ Server::Server() : should_run(true), server_on(false) {
     auto ms_since_epoch = std::chrono::duration_cast<milliseconds>(epoch);
 
     // Not using double to
-    auto ms = (double) ms_since_epoch.count(); // TODO: Change to since 0h on 1 January 1900
-    auto value = ms / 1000; // Seconds to float works as expected till  va
+    long count_ms = ms_since_epoch.count(); // TODO: Change to since 0h on 1 January 1900
+    auto value = (double) count_ms / 1000; // Seconds to float works as expected till
 
     st_integer_part = (int32_t) value;
     st_fractional_part = get_fractional_as_integer(value);
+    start_time_ms = count_ms;
 }
 
 // Example for 1.75: Fractional == 0.11, so should return 11 followed by 30 zeros

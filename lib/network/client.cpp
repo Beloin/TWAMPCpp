@@ -19,6 +19,7 @@
 
 using Network::Client;
 
+double parse_server_start(Network::ServerStart &server_start);
 
 int Client::ConnectTo(const std::string &host, const std::string &port) {
     auto status = UpdaterServerFd(host, port);
@@ -115,9 +116,32 @@ void Network::Client::StartConnection() {
         return;
     }
 
-    spdlog::info("connection successfully with server {}", server_addr);
+    double ms = parse_server_start(server_start);
+    spdlog::info("connection successfully with server {}. Time alive: {}", server_addr, ms);
     close(server_fd);
 }
+
+double parse_server_start(Network::ServerStart &server_start) {
+    uint32_t st_integer_part = 0;
+    uint64_t st_fractional_part = 0; // TODO: Fix this
+    for (int i = 0; i < 4; ++i) {
+        int offset = 8 * (i + 1);
+        st_integer_part = server_start.start_time[i];
+        st_integer_part <<= (32 - offset);
+
+        st_fractional_part = server_start.start_time[4 + i];
+        st_fractional_part <<= (32 - offset);
+    }
+
+    union {
+        uint64_t bits;
+        double real;
+    } value = {st_fractional_part};
+    value.bits <<= (32 - 12);
+    value.bits |= (-1ULL & 0x7FF);
+    return (double) st_integer_part + value.real;
+}
+
 
 ssize_t Network::Client::readServerStart(unsigned char *buffer, Network::ServerStart &server_start) const {
     ssize_t read;

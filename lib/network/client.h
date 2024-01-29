@@ -16,6 +16,7 @@ namespace Network {
         int server_fd{};
 
         std::string server_addr;
+        double server_start_ms;
 
         int UpdaterServerFd(std::string const &host, std::string const &port);
 
