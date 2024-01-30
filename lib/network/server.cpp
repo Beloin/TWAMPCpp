@@ -240,14 +240,7 @@ void Network::Server::handle_socket(int client_fd, std::string client_addr) {
         close(client_fd);
     }
 
-    this->clients.emplace_back(client_addr, client_amount, client_fd);
-
-    std::list<ConnectedClient*> ls;
-    const std::list<ConnectedClient*>::iterator &iterator = std::remove_if(ls.begin(), ls.end(), [&](const auto &item) {
-        return true;
-    });
-    auto client = iterator.operator*();
-    delete client;
+    this->clients.emplace_back(client_addr, client_amount, client_fd); // TODO: How to delete later on
 //    close(client_fd);
 
     delete[] buff;
