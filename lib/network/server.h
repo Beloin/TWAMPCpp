@@ -5,8 +5,13 @@
 #ifndef TWAMP_SERVER_H
 #define TWAMP_SERVER_H
 
+#include "connected_client.h"
+
 #define SERVWAIT 900
 #define REFWAIT 900
+
+// TODO: Use configuration. If we use dynamic configured, we will need a vector or a list
+#define MAX_CLIENTS 2
 
 namespace Network {
 
@@ -30,9 +35,10 @@ namespace Network {
         uint32_t st_integer_part{};
         uint32_t st_fractional_part{};
 
-        // TODO: Create a client list
+        int client_amount = 0;
+        std::vector<ConnectedClient> clients{};
 
-        void handle_socket(int client_fd) const;
+        void handle_socket(int client_fd, std::string client_addr);
     };
 
 

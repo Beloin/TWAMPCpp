@@ -5,10 +5,12 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <cstring>
+#include <utility>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <list>
 
 #include "spdlog/spdlog.h"
 
@@ -95,7 +97,7 @@ int Server::Serve(const std::string &port) {
         inet_ntop(their_addr.ss_family, Utils::get_in_addr((struct sockaddr *) &their_addr), s, sizeof s);
         spdlog::info("serve: got connection from {} with fd {}", s, new_fd);
 
-        handle_socket(new_fd);
+        handle_socket(new_fd, s);
     }
 
 
@@ -179,7 +181,7 @@ bool Network::Server::IsRunning() const {
 
 void parse_decimal_float(ServerStart &start_message, uint32_t integer);
 
-void Network::Server::handle_socket(int client_fd) const {
+void Network::Server::handle_socket(int client_fd, std::string client_addr) {
     // TODO: Remember to use threads to retrieve more sockets;
     ssize_t size;
     Network::ServerGreetings server_greetings{};
@@ -230,6 +232,7 @@ void Network::Server::handle_socket(int client_fd) const {
         start_message.start_time[4 + i] =
                 st_fractional_part >> (32 - offset); // 11101110...00000000 >> (24) => 00000000...11101110
     }
+    start_message.mbz[15] = 0; // Accept should be OK
 
     start_message.Serialize(buff);
     if ((bytes_sent = Utils::sbytes(client_fd, buff, 64)) != 64) {
@@ -237,8 +240,15 @@ void Network::Server::handle_socket(int client_fd) const {
         close(client_fd);
     }
 
-    close(client_fd);
+    this->clients.emplace_back(client_addr, client_amount, client_fd);
+
+    std::list<ConnectedClient*> ls;
+    const std::list<ConnectedClient*>::iterator &iterator = std::remove_if(ls.begin(), ls.end(), [&](const auto &item) {
+        return true;
+    });
+    auto client = iterator.operator*();
+    delete client;
+//    close(client_fd);
 
     delete[] buff;
 }
-
