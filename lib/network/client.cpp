@@ -118,6 +118,7 @@ void Network::Client::StartConnection() {
 
     double ms = parse_server_start(server_start);
     spdlog::info("connection successfully with server {}. Time alive: {}", server_addr, ms);
+    // TODO: Start Test Session.
     close(server_fd);
 }
 

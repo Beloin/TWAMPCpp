@@ -248,6 +248,8 @@ void Network::Server::handle_socket(int client_fd, std::string client_addr) {
     std::unique_ptr<ConnectedClient> client{new ConnectedClient(client_addr, client_amount, client_fd)};
     connectedClients.push_back(std::move(client));
     client_amount++;
+    // TODO: Start client threads to wait for the following commands: Request-Session, Start-Sessions, Stop-Sessions, and Fetch-Session
+    //  Server can also send a Stop-Sessions whenever it likes.
 //    close(client_fd);
 
     delete[] buff;

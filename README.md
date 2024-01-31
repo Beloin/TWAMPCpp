@@ -88,8 +88,6 @@ Packet:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
 
-
-
 Timestamp:
 
 The format of the timestamp is the same as in [RFC1305] and is as
@@ -107,6 +105,13 @@ then.
 |                 Fractional part of seconds                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
+
+After connections is established, client can send the following commands: Request-Session, Start-Sessions,
+Stop-Sessions and Fetch-Session.
+
+## Creating Test Session
+
+.. 
 
 ## About Floating Point Numbers
 
