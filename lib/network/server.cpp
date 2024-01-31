@@ -170,9 +170,11 @@ uint32_t get_fractional_as_integer(double value) {
 Network::Server::~Server() {
     server_on = false;
     should_run = false;
+
     close(serverfd);
 
-    // TODO: Kill clients
+    // TODO: Kill clients -> Maybe client destructors are already being called
+//    connectedClients.pop_back();
 }
 
 bool Network::Server::IsRunning() const {
@@ -192,6 +194,9 @@ void Network::Server::handle_socket(int client_fd, std::string client_addr) {
 
     auto *buff = new unsigned char[200]; // unsigned char buffer[64]; Used `new` to be used to using delete[]
     int bytes_written = server_greetings.Serialize(buff);
+
+    // TODO: Check if clients are available and send  "5" in accept to send as limited resources
+    if (client_amount >= MAX_CLIENTS) {}
 
     spdlog::debug("sending {} bytes to client with fd {}", bytes_written, client_fd);
     ssize_t bytes_sent = Utils::sbytes(client_fd, buff, bytes_written);
@@ -240,7 +245,9 @@ void Network::Server::handle_socket(int client_fd, std::string client_addr) {
         close(client_fd);
     }
 
-    this->clients.emplace_back(client_addr, client_amount, client_fd); // TODO: How to delete later on
+    std::unique_ptr<ConnectedClient> client{new ConnectedClient(client_addr, client_amount, client_fd)};
+    connectedClients.push_back(std::move(client));
+    client_amount++;
 //    close(client_fd);
 
     delete[] buff;

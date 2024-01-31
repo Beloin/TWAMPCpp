@@ -10,6 +10,5 @@
 Network::ConnectedClient::ConnectedClient(std::string& host, int id, int fd) : host(std::move(host)), id(id), fd(fd) {}
 
 Network::ConnectedClient::~ConnectedClient() {
-    // TODO: Implement close
     close(fd);
 }

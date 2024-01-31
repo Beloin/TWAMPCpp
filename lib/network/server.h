@@ -36,7 +36,7 @@ namespace Network {
         uint32_t st_fractional_part{};
 
         int client_amount = 0;
-        std::vector<ConnectedClient> clients{};
+        std::list<std::unique_ptr<ConnectedClient>> connectedClients;
 
         void handle_socket(int client_fd, std::string client_addr);
     };
