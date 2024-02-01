@@ -28,6 +28,10 @@ namespace Network {
         ssize_t readServerGreetings(unsigned char *buffer, Network::ServerGreetings &serverGreetings) const;
 
         ssize_t readServerStart(unsigned char *buffer, ServerStart &server_start) const;
+
+        void StartTestSession();
+
+        virtual ~Client();
     };
 
 }

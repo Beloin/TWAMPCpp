@@ -7,6 +7,8 @@
 
 #include "connected_client.h"
 
+#include "list"
+
 #define SERVWAIT 900
 #define REFWAIT 900
 

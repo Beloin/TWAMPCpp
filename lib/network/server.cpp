@@ -82,6 +82,7 @@ int Server::Serve(const std::string &port) {
     server_on = true;
     serverfd = server_fd;
 
+    spdlog::debug("StartTime: {}-{} = {}", st_integer_part, st_fractional_part, ((double) this->start_time_ms) / 1000);
     while (should_run) {
         struct sockaddr_storage their_addr{};
         socklen_t sin_size = sizeof their_addr;

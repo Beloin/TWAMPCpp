@@ -118,8 +118,6 @@ void Network::Client::StartConnection() {
 
     double ms = parse_server_start(server_start);
     spdlog::info("connection successfully with server {}. Time alive: {}", server_addr, ms);
-    // TODO: Start Test Session.
-    close(server_fd);
 }
 
 double parse_server_start(Network::ServerStart &server_start) {
@@ -127,20 +125,25 @@ double parse_server_start(Network::ServerStart &server_start) {
     uint64_t st_fractional_part = 0; // TODO: Fix this
     for (int i = 0; i < 4; ++i) {
         int offset = 8 * (i + 1);
-        st_integer_part = server_start.start_time[i];
-        st_integer_part <<= (32 - offset);
 
-        st_fractional_part = server_start.start_time[4 + i];
-        st_fractional_part <<= (32 - offset);
+        uint32_t temp = server_start.start_time[i];
+        temp <<= (32 - offset);
+        st_integer_part |= temp;
+
+        temp = server_start.start_time[4 + i];;
+        temp <<= (32 - offset);
+        st_fractional_part |= temp;
     }
 
+//    st_fractional_part >>= 1; // removes
     union {
         uint64_t bits;
         double real;
-    } value = {st_fractional_part};
-    value.bits <<= (32 - 12);
-    value.bits |= (-1ULL & 0x7FF);
-    return (double) st_integer_part + value.real;
+    } value = {st_fractional_part}; // 000000000000_20=0_32=(st_fractional_part)
+    value.bits <<= 19;
+    value.bits |= 1ULL << 20;
+    value.bits |= 0x3FFULL << 52;
+    return ((double) st_integer_part) + value.real;
 }
 
 
@@ -155,4 +158,12 @@ ssize_t Network::Client::readServerGreetings(unsigned char *buffer, Network::Ser
     ssize_t r = Utils::rbytes(server_fd, buffer, 64);
     serverGreetings.Deserialize(buffer);
     return r;
+}
+
+Network::Client::~Client() {
+    close(server_fd);
+}
+
+void Network::Client::StartTestSession() {
+
 }
