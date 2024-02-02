@@ -8,6 +8,7 @@
 #include <string>
 #include "messages.h"
 
+typedef std::chrono::duration<double, std::ratio<1, 1>> duration_seconds;
 namespace Network {
     class Client {
 

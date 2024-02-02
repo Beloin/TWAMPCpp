@@ -116,8 +116,16 @@ void Network::Client::StartConnection() {
         return;
     }
 
-    double ms = parse_server_start(server_start);
-    spdlog::info("connection successfully with server {}. Time alive: {}", server_addr, ms);
+    double sc = parse_server_start(server_start);
+//    time_t time_b; // Seconds Since Epoch
+//    time_b = time(nullptr);
+
+    using namespace std::chrono;
+    duration_seconds ds{sc};
+
+    system_clock::;
+
+    spdlog::info("connection successfully with server {}. TimeAlive: {}", server_addr, ds.count());
 }
 
 double parse_server_start(Network::ServerStart &server_start) {
@@ -143,7 +151,7 @@ double parse_server_start(Network::ServerStart &server_start) {
     value.bits <<= 19;
     value.bits |= 1ULL << 20;
     value.bits |= 0x3FFULL << 52;
-    return ((double) st_integer_part) + value.real;
+    return ((double) st_integer_part) + (value.real - 1);  // TODO: Create Real FIX
 }
 
 
