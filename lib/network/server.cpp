@@ -11,12 +11,14 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <list>
+#include <iostream>
 
 #include "spdlog/spdlog.h"
 
 #include "server.h"
 #include "utils/socket_utils.h"
 #include "messages.h"
+#include "utils/time_utils.h"
 
 #define BACKLOG 10
 
@@ -82,7 +84,7 @@ int Server::Serve(const std::string &port) {
     server_on = true;
     serverfd = server_fd;
 
-    spdlog::debug("StartTime: {}-{} = {}", st_integer_part, st_fractional_part, ((double) this->start_time_ms) / 1000);
+    spdlog::debug("StartTime: {}", ((double) this->start_time_ms) / 1000);
     while (should_run) {
         struct sockaddr_storage their_addr{};
         socklen_t sin_size = sizeof their_addr;
@@ -105,18 +107,18 @@ int Server::Serve(const std::string &port) {
     return 0;
 }
 
-
 Server::Server() : should_run(true), server_on(false) {
     using std::chrono::milliseconds;
     auto now = std::chrono::system_clock::now();
-    auto epoch = now.time_since_epoch();
-    auto ms_since_epoch = std::chrono::duration_cast<milliseconds>(epoch);
 
-    // Not using double to
-    long count_ms = ms_since_epoch.count(); // TODO: Change to since 0h on 1 January 1900
-    auto value = (double) count_ms / 1000; // Seconds to float works as expected till
+    tm tp = std::tm{0, 0, 0, 1, 0, (1900 - 1900)};
+    std::chrono::system_clock::time_point specific_date = std::chrono::system_clock::from_time_t(std::mktime(&tp));
+    auto ms_since_1900 = std::chrono::duration_cast<milliseconds>(now - twamp_start_date());
 
-    st_integer_part = (int32_t) value;
+    long count_ms = ms_since_1900.count();
+    auto value = (double) count_ms / 1000;
+
+    st_integer_part = (uint32_t) value;
     st_fractional_part = get_fractional_as_integer(value);
     start_time_ms = count_ms;
 }

@@ -6,6 +6,7 @@ add_library(
         ./network/client.cpp
         ./network/messages.cpp
         network/connected_client.cpp
+        utils/time_utils.cpp
 )
 
 target_include_directories(lib_impl PRIVATE ../include)

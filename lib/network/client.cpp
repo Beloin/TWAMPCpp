@@ -10,14 +10,17 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <iostream>
+#include <iomanip>
 
 #include "spdlog/spdlog.h"
 
 #include "utils/socket_utils.h"
 #include "client.h"
 #include "messages.h"
+#include "utils/time_utils.h"
 
 using Network::Client;
+using namespace std::chrono;
 
 double parse_server_start(Network::ServerStart &server_start);
 
@@ -116,21 +119,22 @@ void Network::Client::StartConnection() {
         return;
     }
 
+    // TODO: Problem with fractional part
     double sc = parse_server_start(server_start);
-//    time_t time_b; // Seconds Since Epoch
-//    time_b = time(nullptr);
-
-    using namespace std::chrono;
     duration_seconds ds{sc};
 
-    system_clock::;
+    auto ms_duration = duration_cast<milliseconds>(ds);
+    const auto start_date = twamp_start_date() + ms_duration;
+    std::time_t t = system_clock::to_time_t(start_date);
 
-    spdlog::info("connection successfully with server {}. TimeAlive: {}", server_addr, ds.count());
+    std::stringstream st;
+    st << std::put_time(std::localtime(&t), "%FT%T%z");
+    spdlog::info("connection successfully with server {}. Server started at: {}", server_addr, st.str());
 }
 
 double parse_server_start(Network::ServerStart &server_start) {
     uint32_t st_integer_part = 0;
-    uint64_t st_fractional_part = 0; // TODO: Fix this
+    uint64_t st_fractional_part = 0;
     for (int i = 0; i < 4; ++i) {
         int offset = 8 * (i + 1);
 
@@ -143,7 +147,6 @@ double parse_server_start(Network::ServerStart &server_start) {
         st_fractional_part |= temp;
     }
 
-//    st_fractional_part >>= 1; // removes
     union {
         uint64_t bits;
         double real;
