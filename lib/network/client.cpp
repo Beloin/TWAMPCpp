@@ -124,8 +124,8 @@ void Network::Client::StartConnection() {
     duration_seconds ds{sc};
 
     auto ms_duration = duration_cast<milliseconds>(ds);
-    const auto start_date = twamp_start_date() + ms_duration;
-    std::time_t t = system_clock::to_time_t(start_date);
+    server_start_date = twamp_start_date() + ms_duration;
+    std::time_t t = system_clock::to_time_t(server_start_date);
 
     std::stringstream st;
     st << std::put_time(std::localtime(&t), "%FT%T%z");

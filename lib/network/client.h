@@ -7,6 +7,9 @@
 
 #include <string>
 #include "messages.h"
+#include "chrono"
+
+using namespace std::chrono;
 
 typedef std::chrono::duration<double, std::ratio<1, 1>> duration_seconds;
 namespace Network {
@@ -18,6 +21,7 @@ namespace Network {
 
         std::string server_addr;
         double server_start_ms;
+        system_clock::time_point server_start_date;
 
         int UpdaterServerFd(std::string const &host, std::string const &port);
 
