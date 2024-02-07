@@ -38,9 +38,8 @@ Following [Chapter 5][5] (two-host implementation) from [__RFC 5357__][1] will b
 the Responder(Server), which will implement Session-Sender and Session Reflector respectively.
 
 - [ ] TWAMP-Control:
-    - [ ] Connection Setup
+    - [X] Connection Setup
     - [ ] Integrity Protection (Probably will not be implemented) (Implement later with shared-secrets)
-    - [ ] Connection Setup
     - [ ] TWAMP-Control Commands
     - [ ] Create Test Sessions
     - [ ] Send Schedules
@@ -107,11 +106,83 @@ then.
 ```
 
 After connections is established, client can send the following commands: Request-Session, Start-Sessions,
-Stop-Sessions and Fetch-Session.
+Stop-Sessions and ~~Fetch-Session~~ (in TWAMP Fetch-Sessions does not exists).
 
 ## Creating Test Session
 
-.. 
+The client sends a `Request-TW-Session` message the same format as described in [Section 3.5][12] of OWAMP, but without the Schedule
+Slot Descriptions field(s) and uses only one HMAC. The description of the Request-TW-Session format follows.
+
+```
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   1 [Command] |  MBZ  | IPVN  |  Conf-Sender  | Conf-Receiver |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                  Number of Schedule Slots                     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                      Number of Packets                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|          Sender Port          |         Receiver Port         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                        Sender Address                         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|           Sender Address (cont.) or MBZ (12 octets)           |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                        Receiver Address                       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|           Receiver Address (cont.) or MBZ (12 octets)         |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                        SID (16 octets)                        |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                         Padding Length                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           Start Time                          |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                       Timeout, (8 octets)                     |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                       Type-P Descriptor                       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                         MBZ (8 octets)                        |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                       HMAC (16 octets)                        |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+`5` in command is the `Request-TW-Session`, the two-way test session using the TWAMP-Test protocol.
+
+Both the Conf-Sender field and Conf-Receiver field MUST be set to 0 since the Session-Reflector will both receive and send packets, and
+the roles are established according to which host initiates the TCP connection for control.
+
+If the IP's of both the Session-Sender and Session-Reflector is the same as
+the Control-Client and Server respectively, SenderAddress and ReceiverAddress are set to 0.
+
+The server also creates a SID for this client that will be used for client identity.
+
+The timeout here is to wait for packages that are yet to come after a Stop-Session is sent.
+The server MUST not reflect any packet sent after TIMEOUT.
+
+
+Accept-Session message:
+```
+```
+
+## Test Session
+
+Session-Sender first sending and then receiving test packets.
 
 ## About Floating Point Numbers
 
@@ -143,6 +214,10 @@ of `timestamp`.
 [9]:https://git.musl-libc.org/cgit/musl/tree/src/math/modf.c
 
 [10]:https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+
+[//]: # (RFC)
+[11]:https://datatracker.ietf.org/doc/html/rfc5357#section-3.5
+[12]:https://datatracker.ietf.org/doc/html/rfc4656#section-3.5
 
 1. [RFC 5357][1]
 2. [Understand Two-Way Active Measurement Protocol][2]

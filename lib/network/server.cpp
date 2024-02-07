@@ -198,7 +198,7 @@ void Network::Server::handle_socket(int client_fd, std::string client_addr) {
     auto *buff = new unsigned char[200]; // unsigned char buffer[64]; Used `new` to be used to using delete[]
     int bytes_written = server_greetings.Serialize(buff);
 
-    // TODO: Check if clients are available and send  "5" in accept to send as limited resources
+    // TODO: Check if clients are available and send "5" in accept to send as limited resources
     if (client_amount >= MAX_CLIENTS) {}
 
     spdlog::debug("sending {} bytes to client with fd {}", bytes_written, client_fd);
@@ -248,7 +248,7 @@ void Network::Server::handle_socket(int client_fd, std::string client_addr) {
         close(client_fd);
     }
 
-    std::unique_ptr<ConnectedClient> client{new ConnectedClient(client_addr, client_amount, client_fd)};
+    std::unique_ptr<ConnectedClientWorker> client{new ConnectedClientWorker(client_addr, client_amount, client_fd)};
     connectedClients.push_back(std::move(client));
     client_amount++;
     // TODO: Start client threads to wait for the following commands: Request-Session, Start-Sessions, Stop-Sessions, and Fetch-Session

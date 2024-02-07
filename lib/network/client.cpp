@@ -113,7 +113,7 @@ void Network::Client::StartConnection() {
     ServerStart server_start{};
     read = readServerStart(buffer, server_start);
 
-    if (read <= 0 || server_start.mbz[15] != 0) {
+    if (read <= 0 || server_start.mbz[15] != 0) { // Accept field
         spdlog::error("could not get `Server-Start` message: Bytes read {}", read);
         close(server_fd);
         return;
@@ -176,5 +176,5 @@ Network::Client::~Client() {
 }
 
 void Network::Client::StartTestSession() {
-
+    // TODO: Start with server_fd
 }

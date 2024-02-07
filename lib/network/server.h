@@ -5,7 +5,7 @@
 #ifndef TWAMP_SERVER_H
 #define TWAMP_SERVER_H
 
-#include "connected_client.h"
+#include "connected_client_worker.h"
 
 #include "list"
 
@@ -38,7 +38,7 @@ namespace Network {
         uint32_t st_fractional_part{};
 
         int client_amount = 0;
-        std::list<std::unique_ptr<ConnectedClient>> connectedClients;
+        std::list<std::unique_ptr<ConnectedClientWorker>> connectedClients;
 
         void handle_socket(int client_fd, std::string client_addr);
     };
