@@ -97,7 +97,7 @@ then.
 
 ```
 0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9  0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                   Integer part of seconds                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -110,8 +110,10 @@ Stop-Sessions and ~~Fetch-Session~~ (in TWAMP Fetch-Sessions does not exists).
 
 ## Creating Test Session
 
-The client sends a `Request-TW-Session` message the same format as described in [Section 3.5][12] of OWAMP, but without the Schedule
-Slot Descriptions field(s) and uses only one HMAC. The description of the Request-TW-Session format follows.
+The client sends a `Request-TW-Session` message the same format as described in [Section 3.5][12] of OWAMP, but without
+the Schedule
+Slot Descriptions field(s) and uses only one HMAC, so the fields `MBZ`. The description of the Request-TW-Session format
+follows.
 
 ```
 0                   1                   2                   3
@@ -164,8 +166,10 @@ Slot Descriptions field(s) and uses only one HMAC. The description of the Reques
 
 `5` in command is the `Request-TW-Session`, the two-way test session using the TWAMP-Test protocol.
 
-Both the Conf-Sender field and Conf-Receiver field MUST be set to 0 since the Session-Reflector will both receive and send packets, and
-the roles are established according to which host initiates the TCP connection for control.
+Both the Conf-Sender field and Conf-Receiver field MUST be set to 0 since the Session-Reflector will both receive and
+send packets, and
+the roles are established according to which host initiates the TCP connection for control. If not, the server MUST send
+Accept-Session with `accept = 3`.
 
 If the IP's of both the Session-Sender and Session-Reflector is the same as
 the Control-Client and Server respectively, SenderAddress and ReceiverAddress are set to 0.
@@ -175,8 +179,8 @@ The server also creates a SID for this client that will be used for client ident
 The timeout here is to wait for packages that are yet to come after a Stop-Session is sent.
 The server MUST not reflect any packet sent after TIMEOUT.
 
-
 Accept-Session message:
+
 ```
 ```
 
@@ -216,13 +220,17 @@ of `timestamp`.
 [10]:https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 
 [//]: # (RFC)
+
 [11]:https://datatracker.ietf.org/doc/html/rfc5357#section-3.5
+
 [12]:https://datatracker.ietf.org/doc/html/rfc4656#section-3.5
 
 1. [RFC 5357][1]
 2. [Understand Two-Way Active Measurement Protocol][2]
 3. [Beej's Guide to Network Programming][3]
 4. [Socket Disconnected][7]
+5. [Double Precision Float][10]
+6. [Modf][9]
 
 # Other Beloin's Projects
 
