@@ -34,6 +34,7 @@ void ConnectedClientWorker::operator()() {
     }
 
     RequestTWSession requestTwSession;
+    // TODO: Not implemented
     requestTwSession.Deserialize(buffer);
 
     if (requestTwSession.command != 5) {

@@ -42,7 +42,7 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
     if ((rv = getaddrinfo(host.data(), port.data(), &hints, &servinfo)) != 0) {
         spdlog::error("getaddrinfo: {}", gai_strerror(rv));
-//        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+        // fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
 
@@ -63,7 +63,7 @@ int Client::UpdaterServerFd(std::string const &host, std::string const &port) {
 
 
     if (p == nullptr) {
-        spdlog::error("client: failed to connect");
+        fprintf(stderr, "client: failed to connect\n");
         return 3;
     }
 

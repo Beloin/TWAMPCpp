@@ -26,10 +26,12 @@ namespace Network {
         uint16_t receiver_port{0};
 
         char sender_address[4] = {0};
-        char receiver_address[4] = {0};
+        char receiver_address[4] = {0}; // Remember, the continuation MBZ
 
         double start_time{0};
         uint64_t timeout{0};
+
+        // TODO: HMAC?
 
         int Serialize(unsigned char *buf) const;
 

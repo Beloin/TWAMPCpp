@@ -44,3 +44,7 @@ build/**
 *.exe
 *.out
 *.app
+
+out/**
+
+.cache/**
