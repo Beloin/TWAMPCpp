@@ -119,7 +119,9 @@ void Network::Client::StartConnection() {
         return;
     }
 
+    // TODO: Use htons and ntohs
     // TODO: Problem with fractional part
+    //  Probably because of endianess
     double sc = parse_server_start(server_start);
     duration_seconds ds{sc};
 
